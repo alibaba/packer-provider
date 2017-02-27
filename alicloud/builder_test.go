@@ -8,14 +8,14 @@ import (
 
 func testBuilderConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"alicloud_access_key":    "foo",
-		"alicloud_secret_key":    "bar",
-		"alicloud_source_image":  "foo",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_region":        "cn-beijing",
-		"ssh_username":           "root",
-		"alicloud_image_name":    "foo",
-		"alicloud_io_optimized":  true,
+		"access_key":    "foo",
+		"secret_key":    "bar",
+		"source_image":  "foo",
+		"instance_type": "ecs.n1.tiny",
+		"region":        "cn-beijing",
+		"ssh_username":  "root",
+		"image_name":    "foo",
+		"io_optimized":  true,
 	}
 }
 
@@ -47,7 +47,7 @@ func TestBuilderPrepare_ECSImageName(t *testing.T) {
 	config := testBuilderConfig()
 
 	// Test good
-	config["alicloud_image_name"] = "ecs.n1.tiny"
+	config["image_name"] = "ecs.n1.tiny"
 	warnings, err := b.Prepare(config)
 	if len(warnings) > 0 {
 		t.Fatalf("bad: %#v", warnings)
@@ -68,7 +68,7 @@ func TestBuilderPrepare_ECSImageName(t *testing.T) {
 	}
 
 	// Test bad
-	delete(config, "alicloud_image_name")
+	delete(config, "image_name")
 	b = Builder{}
 	warnings, err = b.Prepare(config)
 	if len(warnings) > 0 {

@@ -10,10 +10,10 @@ import (
 
 // Config of alicloud
 type AlicloudAccessConfig struct {
-	AlicloudAccessKey      string `mapstructure:"alicloud_access_key"`
-	AlicloudSecretKey      string `mapstructure:"alicloud_secret_key"`
-	AlicloudRegion         string `mapstructure:"alicloud_region"`
-	AlicloudSkipValidation bool   `mapstructure:"alicloud_skip_region_validation"`
+	AlicloudAccessKey      string `mapstructure:"access_key"`
+	AlicloudSecretKey      string `mapstructure:"secret_key"`
+	AlicloudRegion         string `mapstructure:"region"`
+	AlicloudSkipValidation bool   `mapstructure:"skip_region_validation"`
 }
 
 // Client for AlicloudClient

@@ -76,6 +76,7 @@ func (a *Artifact) Destroy() error {
 		if len(images) == 0 {
 			err := fmt.Errorf("Error retrieving details for alicloud image(%s), no alicloud images found", imageId)
 			errors = append(errors, err)
+			continue
 		}
 		//Unshared the shared account before destroy
 		sharePermissions, err := a.Client.DescribeImageSharePermission(&ecs.ModifyImageSharePermissionArgs{RegionId: common.Region(region), ImageId: imageId})
@@ -103,7 +104,7 @@ func (a *Artifact) Destroy() error {
 			errors = append(errors, err)
 		}
 		//Delete the snapshot of this images
-		for _,diskDevices := range images[0].DiskDeviceMappings.DiskDeviceMapping {
+		for _, diskDevices := range images[0].DiskDeviceMappings.DiskDeviceMapping {
 			if err := a.Client.DeleteSnapshot(diskDevices.SnapshotId); err != nil {
 				errors = append(errors, err)
 			}

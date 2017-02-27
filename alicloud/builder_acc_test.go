@@ -330,9 +330,5 @@ const testBuilderAccWindows = `
 		"winrm_username": "Administrator",
 		"winrm_password": "Test1234",
 		"alicloud_image_name": "packer-test_{{timestamp}}"
-	}],
-  	"provisioners": [{
-      		"type": "powershell",
-      		"inline": ["dir c:\\"]
-  	}]
+	}]
 }`

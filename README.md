@@ -102,3 +102,16 @@
 
 ```
 ##
+### How to contribute code
+* If you are not sure or have any doubts, feel free to ask and/or submit an issue or PR. We appreciate all contributions and don't want to create artificial obstacles that get in the way.
+* Contributions are welcome and will be merged via PRs.
+
+### Contributors
+* zhuzhih2017(dongxiao.zzh@alibaba-inc.com)
+
+### License
+* This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/packer-provider/blob/master/LICENSE) for the full license text.
+
+### Refrence
+* Pakcer document: https://www.packer.io/intro/
+

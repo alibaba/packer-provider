@@ -155,7 +155,7 @@ func (s *stepCreateAlicloudInstance) getUserData(state multistep.StateBag) (stri
 	config := state.Get("config").(Config)
 	publicKey := ""
 	if publickey_temp, ok := state.GetOk("publickKey"); ok {
-		publicKey := publickey_temp.(string)
+		publicKey = publickey_temp.(string)
 		publicKey = strings.TrimRight(publicKey, "\n")
 	}
 	userData := s.UserData

@@ -56,7 +56,7 @@
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",
     "image_name":"packer_test2",
-    "source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+    "source_image":"centos_7_2_64_40G_base_20170222.vhd",
     "ssh_username":"root",
     "instance_type":"ecs.n1.tiny",
     "io_optimized":"true",

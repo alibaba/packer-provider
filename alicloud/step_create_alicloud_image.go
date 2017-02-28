@@ -24,9 +24,11 @@ func (s *stepCreateAlicloudImage) Run(state multistep.StateBag) multistep.StepAc
 
 	instance := state.Get("instance").(*ecs.InstanceAttributesType)
 	imageId, err = client.CreateImage(&ecs.CreateImageArgs{
-		RegionId:   common.Region(config.AlicloudRegion),
-		InstanceId: instance.InstanceId,
-		ImageName:  config.AlicloudImageName})
+		RegionId:     common.Region(config.AlicloudRegion),
+		InstanceId:   instance.InstanceId,
+		ImageName:    config.AlicloudImageName,
+		ImageVersion: config.AlicloudImageVersion,
+		Description:  config.AlicloudImageDescription})
 
 	if err != nil {
 		err := fmt.Errorf("Error create alicloud images: %s", err)

@@ -107,14 +107,10 @@
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
-* heww(heww0205@gmail.com)
-* ShuWei(shuwei.yin@alibaba-inc.com)
-* WangYuelucky(wangyuelucky@126.com)
-* GuiMin(guimin.hgm@alibaba-inc.com)
 * zhuzhih2017(dongxiao.zzh@alibaba-inc.com)
 
 ### License
-* This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/terraform-provider/blob/master/LICENSE) for the full license text.
+* This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/packer-provider/blob/master/LICENSE) for the full license text.
 
 ### Refrence
 * Pakcer document: https://www.packer.io/intro/

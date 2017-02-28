@@ -153,8 +153,11 @@ func (s *stepCreateAlicloudInstance) Cleanup(state multistep.StateBag) {
 
 func (s *stepCreateAlicloudInstance) getUserData(state multistep.StateBag) (string, error) {
 	config := state.Get("config").(Config)
-	publicKey := state.Get("publickKey").(string)
-	publicKey = strings.TrimRight(publicKey, "\n")
+	publicKey := ""
+	if publickey_temp, ok := state.GetOk("publickKey"); ok {
+		publicKey = publickey_temp.(string)
+		publicKey = strings.TrimRight(publicKey, "\n")
+	}
 	userData := s.UserData
 	if s.UserDataFile != "" {
 		data, err := ioutil.ReadFile(s.UserDataFile)

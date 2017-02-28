@@ -6,7 +6,7 @@ build:
 	go build -o packer-builder-alicloud
 
 move:
-	mv packer-builder-alicloud   $(shell dirname `which terraform`)
+	mv packer-builder-alicloud   $(shell dirname `which packer`)
 
 test: 
 	PACKER_ACC=1 go test -v ./alicloud -timeout 120m
@@ -28,6 +28,7 @@ fmtcheck:
 
 
 deps:
+	go get -u github.com/kardianos/govendor
 	govendor sync
 	go get golang.org/x/crypto/curve25519
 	go get golang.org/x/crypto/ed25519

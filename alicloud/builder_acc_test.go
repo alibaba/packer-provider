@@ -157,15 +157,6 @@ func checkECSImageSharing(uid string) builderT.TestCheckFunc {
 			return fmt.Errorf("share account is incorrect %d", len(imageSharePermissionResponse.Accounts.Account))
 		}
 
-		//err = client.ModifyImageSharePermission(
-		//	&ecs.ModifyImageSharePermissionArgs{
-		//		RegionId: "cn-beijing",
-		//		ImageId:artifact.AlicloudImages["cn-beijing"],
-		//		RemoveAccount:[]string{"1309208528360047"},
-		//	})
-		//if err != nil {
-		//	return fmt.Errorf("unshare account failed")
-		//}
 		return nil
 	}
 }
@@ -237,13 +228,13 @@ func testAliyunClient() (*ecs.Client, error) {
 const testBuilderAccBasic = `
 {	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
 		"ssh_username": "ubuntu",
-		"alicloud_io_optimized":"true",
+		"io_optimized":"true",
 		"ssh_username":"root",
-		"alicloud_image_name": "packer-test_{{timestamp}}"
+		"image_name": "packer-test_{{timestamp}}"
 	}]
 }`
 
@@ -251,13 +242,13 @@ const testBuilderAccRegionCopy = `
 {
 	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
-		"alicloud_io_optimized":"true",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+		"io_optimized":"true",
 		"ssh_username":"root",
-		"alicloud_image_name": "packer-test_{{timestamp}}",
-		"alicloud_image_copy_regions": ["cn-hangzhou", "cn-shenzhen"]
+		"image_name": "packer-test_{{timestamp}}",
+		"image_copy_regions": ["cn-hangzhou", "cn-shenzhen"]
 	}]
 }
 `
@@ -266,13 +257,13 @@ const testBuilderAccForceDelete = `
 {
 	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
-		"alicloud_io_optimized":"true",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+		"io_optimized":"true",
 		"ssh_username":"root",
-		"alicloud_image_force_delete": "%s",
-		"alicloud_image_name": "packer-test_%s"
+		"image_force_delete": "%s",
+		"image_name": "packer-test_%s"
 	}]
 }
 `
@@ -281,14 +272,14 @@ const testBuilderAccForceDeleteSnapshot = `
 {
 	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
-		"alicloud_io_optimized":"true",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+		"io_optimized":"true",
 		"ssh_username":"root",
-		"alicloud_image_force_delete_snapshots": "%s",
-		"alicloud_image_force_delete": "%s",
-		"alicloud_image_name": "packer-test-%s"
+		"image_force_delete_snapshots": "%s",
+		"image_force_delete": "%s",
+		"image_name": "packer-test-%s"
 	}]
 }
 `
@@ -298,13 +289,13 @@ const testBuilderAccSharing = `
 {
 	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
-		"alicloud_io_optimized":"true",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+		"io_optimized":"true",
 		"ssh_username":"root",
-		"alicloud_image_name": "packer-test_{{timestamp}}",
-		"alicloud_image_share_account":["1309208528360047"]
+		"image_name": "packer-test_{{timestamp}}",
+		"image_share_account":["1309208528360047"]
 	}]
 }
 `
@@ -320,19 +311,15 @@ func buildForceDeleteSnapshotConfig(val, name string) string {
 const testBuilderAccWindows = `
 {	"builders": [{
 		"type": "test",
-		"alicloud_region": "cn-beijing",
-		"alicloud_instance_type": "ecs.n1.tiny",
-		"alicloud_source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
-		"alicloud_io_optimized":"true",
-		"alicloud_image_force_delete":"true",
+		"region": "cn-beijing",
+		"instance_type": "ecs.n1.tiny",
+		"source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
+		"io_optimized":"true",
+		"image_force_delete":"true",
 		"communicator": "winrm",
 		"winrm_port": 5985,
 		"winrm_username": "Administrator",
 		"winrm_password": "Test1234",
-		"alicloud_image_name": "packer-test_{{timestamp}}"
-	}],
-  	"provisioners": [{
-      		"type": "powershell",
-      		"inline": ["dir c:\\"]
-  	}]
+		"image_name": "packer-test_{{timestamp}}"
+	}]
 }`

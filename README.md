@@ -47,20 +47,20 @@
 ```
 {
   "variables": {
-    "alicloud_access_key": "{{env `ALICLOUD_ACCESS_KEY`}}",
-    "alicloud_secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
+    "access_key": "{{env `ALICLOUD_ACCESS_KEY`}}",
+    "secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
   },
   "builders": [{
     "type":"alicloud",
-    "alicloud_access_key":"{{user `alicloud_access_key`}}",
-    "alicloud_secret_key":"{{user `alicloud_secret_key`}}",
-    "alicloud_region":"cn-beijing",
-    "alicloud_image_name":"packer_test2",
-    "alicloud_source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
+    "access_key":"{{user `access_key`}}",
+    "secret_key":"{{user `secret_key`}}",
+    "region":"cn-beijing",
+    "image_name":"packer_test2",
+    "source_image":"centos7u2_64_40G_cloudinit_20160728.raw",
     "ssh_username":"root",
-    "alicloud_instance_type":"ecs.n1.tiny",
-    "alicloud_io_optimized":"true",
-    "alicloud_image_force_delete":"true"
+    "instance_type":"ecs.n1.tiny",
+    "io_optimized":"true",
+    "image_force_delete":"true"
   }],
   "provisioners": [{
     "type": "shell",
@@ -76,19 +76,19 @@
 ```aidl
 {
   "variables": {
-    "alicloud_access_key": "{{env `ALICLOUD_ACCESS_KEY`}}",
-    "alicloud_secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
+    "access_key": "{{env `ALICLOUD_ACCESS_KEY`}}",
+    "secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
   },
   "builders": [{
     "type":"alicloud",
-    "alicloud_access_key":"{{user `alicloud_access_key`}}",
-    "alicloud_secret_key":"{{user `alicloud_secret_key`}}",
-    "alicloud_region":"cn-beijing",
-    "alicloud_image_name":"packer_test",
-    "alicloud_source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
-    "alicloud_instance_type":"ecs.n1.tiny",
-    "alicloud_io_optimized":"true",
-    "alicloud_image_force_delete":"true",
+    "access_key":"{{user `access_key`}}",
+    "secret_key":"{{user `secret_key`}}",
+    "region":"cn-beijing",
+    "image_name":"packer_test",
+    "source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
+    "instance_type":"ecs.n1.tiny",
+    "io_optimized":"true",
+    "image_force_delete":"true",
     "communicator": "winrm",
     "winrm_port": 5985,
     "winrm_username": "Administrator",

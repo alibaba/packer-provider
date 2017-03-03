@@ -7,10 +7,10 @@ build: mac windows linux
 dev: clean fmt deps mac move
 
 move:
-	tar -xvf  bin/packer-builder-alicloud_darwin-amd64.tgz && mv bin/packer-builder-alicloud   $(shell dirname `which packer`)
+	tar -xvf  bin/packer-builder-alicloud-ecs_darwin-amd64.tgz && mv bin/packer-builder-alicloud-ecs   $(shell dirname `which packer`)
 
 test: 
-	PACKER_ACC=1 go test -v ./alicloud -timeout 120m
+	PACKER_ACC=1 go test -v ./ecs -timeout 120m
 
 vet:
 	@echo "go tool vet $(VETARGS) ."
@@ -36,19 +36,19 @@ deps:
 
 
 mac: deps
-	GOOS=darwin GOARCH=amd64 go build -o bin/packer-builder-alicloud
-	tar czvf bin/packer-builder-alicloud_darwin-amd64.tgz bin/packer-builder-alicloud
-	rm -rf bin/packer-provider-alicloud
+	GOOS=darwin GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs
+	tar czvf bin/packer-builder-alicloud-ecs_darwin-amd64.tgz bin/packer-builder-alicloud-ecs
+	rm -rf bin/packer-provider-alicloud-ecs
 
 windows: deps
-	GOOS=windows GOARCH=amd64 go build -o bin/packer-builder-alicloud.exe
-	tar czvf bin/packer-builder-alicloud_windows-amd64.tgz bin/packer-builder-alicloud.exe
-	rm -rf bin/packer-builder-alicloud.exe
+	GOOS=windows GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs.exe
+	tar czvf bin/packer-builder-alicloud-ecs_windows-amd64.tgz bin/packer-builder-alicloud-ecs.exe
+	rm -rf bin/packer-builder-alicloud-ecs.exe
 
 linux: deps
-	GOOS=linux GOARCH=amd64 go build -o bin/packer-builder-alicloud
-	tar czvf bin/packer-builder-alicloud_linux-amd64.tgz bin/packer-builder-alicloud
-	rm -rf bin/packer-builder-alicloud
+	GOOS=linux GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs
+	tar czvf bin/packer-builder-alicloud-ecs_linux-amd64.tgz bin/packer-builder-alicloud-ecs
+	rm -rf bin/packer-builder-alicloud-ecs
 
 clean:
 	rm -rf bin/*

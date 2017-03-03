@@ -1,12 +1,13 @@
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 
-all: fmt deps build move
+all: clean fmt deps build
 
-build:
-	go build -o packer-builder-alicloud
+build: mac windows linux
+
+dev: clean fmt deps mac move
 
 move:
-	mv packer-builder-alicloud   $(shell dirname `which packer`)
+	tar -xvf  bin/packer-builder-alicloud_darwin-amd64.tgz && mv bin/packer-builder-alicloud   $(shell dirname `which packer`)
 
 test: 
 	PACKER_ACC=1 go test -v ./alicloud -timeout 120m
@@ -32,3 +33,22 @@ deps:
 	govendor sync
 	go get golang.org/x/crypto/curve25519
 	go get golang.org/x/crypto/ed25519
+
+
+mac: deps
+	GOOS=darwin GOARCH=amd64 go build -o bin/packer-builder-alicloud
+	tar czvf bin/packer-builder-alicloud_darwin-amd64.tgz bin/packer-builder-alicloud
+	rm -rf bin/packer-provider-alicloud
+
+windows: deps
+	GOOS=windows GOARCH=amd64 go build -o bin/packer-builder-alicloud.exe
+	tar czvf bin/packer-builder-alicloud_windows-amd64.tgz bin/packer-builder-alicloud.exe
+	rm -rf bin/packer-builder-alicloud.exe
+
+linux: deps
+	GOOS=linux GOARCH=amd64 go build -o bin/packer-builder-alicloud
+	tar czvf bin/packer-builder-alicloud_linux-amd64.tgz bin/packer-builder-alicloud
+	rm -rf bin/packer-builder-alicloud
+
+clean:
+	rm -rf bin/*

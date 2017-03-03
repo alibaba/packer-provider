@@ -58,7 +58,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
   },
   "builders": [{
-    "type":"alicloud",
+    "type":"alicloud-ecs",
     "access_key":"{{user `access_key`}}",
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",
@@ -87,7 +87,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
   },
   "builders": [{
-    "type":"alicloud",
+    "type":"alicloud-ecs",
     "access_key":"{{user `access_key`}}",
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",

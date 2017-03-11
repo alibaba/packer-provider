@@ -37,18 +37,21 @@ deps:
 
 mac: deps
 	GOOS=darwin GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs
-	tar czvf bin/packer-builder-alicloud-ecs_darwin-amd64.tgz bin/packer-builder-alicloud-ecs
-	rm -rf bin/packer-provider-alicloud-ecs
+	GOOS=darwin GOARCH=amd64 go build -o bin/packer-post-processor-alicloud-import
+	tar czvf bin/packer-builder-alicloud-ecs_darwin-amd64.tgz bin/packer-builder-alicloud-ecs bin/packer-post-processor-alicloud-import
+	rm -rf bin/packer-provider-alicloud-ecs bin/packer-post-processor-alicloud-import
 
 windows: deps
 	GOOS=windows GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs.exe
-	tar czvf bin/packer-builder-alicloud-ecs_windows-amd64.tgz bin/packer-builder-alicloud-ecs.exe
-	rm -rf bin/packer-builder-alicloud-ecs.exe
+	GOOS=windows GOARCH=amd64 go build -o bin/packer-post-processor-alicloud-import.exe
+	tar czvf bin/packer-builder-alicloud-ecs_windows-amd64.tgz bin/packer-builder-alicloud-ecs.exe bin/packer-post-processor-alicloud-import.exe
+	rm -rf bin/packer-builder-alicloud-ecs.exe bin/packer-post-processor-alicloud-import.exe
 
 linux: deps
 	GOOS=linux GOARCH=amd64 go build -o bin/packer-builder-alicloud-ecs
-	tar czvf bin/packer-builder-alicloud-ecs_linux-amd64.tgz bin/packer-builder-alicloud-ecs
-	rm -rf bin/packer-builder-alicloud-ecs
+	GOOS=linux GOARCH=amd64 go build -o bin/packer-post-processor-alicloud-import
+	tar czvf bin/packer-builder-alicloud-ecs_linux-amd64.tgz bin/packer-builder-alicloud-ecs bin/packer-post-processor-alicloud-import
+	rm -rf bin/packer-builder-alicloud-ecs bin/packer-post-processor-alicloud-import
 
 clean:
 	rm -rf bin/*

@@ -9,28 +9,40 @@
 			"revisionTime": "2017-02-06T19:08:56Z"
 		},
 		{
-			"checksumSHA1": "BgzJMbgwT7hIpEBPeIN4kSWb5qM=",
+			"checksumSHA1": "HttiPj314X1a0i2Jen1p6lRH/vE=",
+			"path": "github.com/aliyun/aliyun-oss-go-sdk/oss",
+			"revision": "e6dbea820a9f304b43d3b357dd48ced23b86df72",
+			"revisionTime": "2017-01-13T02:27:42Z"
+		},
+		{
+			"checksumSHA1": "InnjAEH008xuFzlslJn2IaG7McM=",
 			"path": "github.com/denverdino/aliyungo/common",
-			"revision": "b8455c05fefa47851df48c850a5b80343e0ea8a6",
-			"revisionTime": "2017-03-06T06:09:13Z"
+			"revision": "4102657a3f4885557c5e19dee53decb1fbf49d2a",
+			"revisionTime": "2017-03-09T13:03:54Z"
 		},
 		{
-			"checksumSHA1": "EkgEvEJzxXXl1cYg4ehWZFEWix0=",
+			"checksumSHA1": "yhWqkta/EcCfgSy1ZV7T/CR6VTo=",
 			"path": "github.com/denverdino/aliyungo/ecs",
-			"revision": "b8455c05fefa47851df48c850a5b80343e0ea8a6",
-			"revisionTime": "2017-03-06T06:09:13Z"
+			"revision": "4102657a3f4885557c5e19dee53decb1fbf49d2a",
+			"revisionTime": "2017-03-09T13:03:54Z"
 		},
 		{
-			"checksumSHA1": "3IVM+6kKWff/qJvignp/HaIrewM=",
+			"checksumSHA1": "40PbgN4Emct6AIiJbhPoEdd+vIA=",
+			"path": "github.com/denverdino/aliyungo/ram",
+			"revision": "4102657a3f4885557c5e19dee53decb1fbf49d2a",
+			"revisionTime": "2017-03-09T13:03:54Z"
+		},
+		{
+			"checksumSHA1": "ufG04XwbDZklJlmRINMh4DErUiI=",
 			"path": "github.com/denverdino/aliyungo/slb",
-			"revision": "b8455c05fefa47851df48c850a5b80343e0ea8a6",
-			"revisionTime": "2017-03-06T06:09:13Z"
+			"revision": "4102657a3f4885557c5e19dee53decb1fbf49d2a",
+			"revisionTime": "2017-03-09T13:03:54Z"
 		},
 		{
 			"checksumSHA1": "Lp0KtT7ycgq31ox3Uzhpxyw0U+Y=",
 			"path": "github.com/denverdino/aliyungo/util",
-			"revision": "b8455c05fefa47851df48c850a5b80343e0ea8a6",
-			"revisionTime": "2017-03-06T06:09:13Z"
+			"revision": "4102657a3f4885557c5e19dee53decb1fbf49d2a",
+			"revisionTime": "2017-03-09T13:03:54Z"
 		},
 		{
 			"checksumSHA1": "GCskdwYAPW2S34918Z5CgNMJ2Wc=",

@@ -18,6 +18,7 @@ elif grep -Eqi "CentOS|Fedora|Red Hat Enterprise Linux Server" /etc/issue || gre
 else
         echo "Unknown OS type."
 fi
+
 #install jenkins server
 mkdir ~/work
 cd ~/work

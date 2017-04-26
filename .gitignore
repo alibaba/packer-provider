@@ -1,0 +1,4 @@
+vendor/
+bin/
+*.bak
+/.gitignore.swp

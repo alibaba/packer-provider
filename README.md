@@ -1,4 +1,4 @@
-## Alicloud [(Alibaba Cloud)](http://www.aliyun.com) packer provider
+# Alicloud [(Alibaba Cloud)](http://www.aliyun.com) packer provider
 
 This is the official repository for the Alicloud packer provider.  
 Currently it supports packer version ≥ v0.12.1.
@@ -6,7 +6,7 @@ Currently it supports packer version ≥ v0.12.1.
 If you are not planning to contribute to this repo, you can download the [compiled binaries](https://github.com/alibaba/packer-provider/releases) according to you platform, unzip and move 
 them into the folder under the packer **PATH** such as **/usr/local/packer**.
 
-##Install
+## Install
 - Download the correct packer from you platform from https://www.packer.io/downloads.html
 - Install packer according to the guide from https://www.packer.io/docs/installation.html
 - Install Go according to the guide from [https://golang.org/doc/install](https://golang.org/doc/install)
@@ -49,8 +49,8 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     ==> alicloud: Connected to SSH!
     ==> alicloud: Provisioning with shell script: /var/folders/3q/w38xx_js6cl6k5mwkrqsnw7w0000gn/T/packer-shell170579778
 ```
-##Example
-###Create a simple image with redis installed
+## Example
+### Create a simple image with redis installed
 ```
 {
   "variables": {
@@ -79,7 +79,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
 }
 
 ```
-###Create a simple image for windows
+### Create a simple image for windows
 ```aidl
 {
   "variables": {

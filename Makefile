@@ -1,6 +1,6 @@
 GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 
-all: clean fmt deps build
+all: clean fmt deps build move
 
 build: mac windows linux
 

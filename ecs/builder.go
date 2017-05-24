@@ -134,6 +134,8 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 		steps = append(steps, &setpConfigAlicloudEIP{
 			AssociatePublicIpAddress: b.config.AssociatePublicIpAddress,
 			RegionId:                 b.config.AlicloudRegion,
+			InternetChargeType:       b.config.InternetChargeType,
+			Bandwidth:                b.config.InternetMaxBandwidthOut,
 		})
 	} else {
 		steps = append(steps, &stepConfigAlicloudPublicIP{

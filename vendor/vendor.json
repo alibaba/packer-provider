@@ -81,13 +81,13 @@
 			"revisionTime": "2013-11-06T22:25:44Z"
 		},
 		{
-			"checksumSHA1": "t7hEeujQesCSzjZIPcE80XgQ9M0=",
+			"checksumSHA1": "DlpjiTUHFFoU39yh4FIKS8g7L7A=",
 			"path": "github.com/masterzen/azure-sdk-for-go/core/http",
 			"revision": "ee4f0065d00cd12b542f18f5bc45799e88163b12",
 			"revisionTime": "2016-10-14T13:56:28Z"
 		},
 		{
-			"checksumSHA1": "xJVMikTtYbfI2KqKeUXaO4292JU=",
+			"checksumSHA1": "uu+PYXYi4sSgXbRnGywIo7wG3JA=",
 			"path": "github.com/masterzen/azure-sdk-for-go/core/tls",
 			"revision": "ee4f0065d00cd12b542f18f5bc45799e88163b12",
 			"revisionTime": "2016-10-14T13:56:28Z"

@@ -2,3 +2,9 @@ vendor/
 bin/
 *.bak
 /.gitignore.swp
+.DS_Store
+examples/.DS_Store
+examples/alicloud/.DS_Store
+release-tools
+release.sh
+

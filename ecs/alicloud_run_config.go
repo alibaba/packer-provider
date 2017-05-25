@@ -3,9 +3,9 @@ package ecs
 import (
 	"errors"
 	"fmt"
-	"github.com/mitchellh/packer/common/uuid"
-	"github.com/mitchellh/packer/helper/communicator"
-	"github.com/mitchellh/packer/template/interpolate"
+	"github.com/hashicorp/packer/common/uuid"
+	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/template/interpolate"
 	"os"
 )
 
@@ -35,12 +35,11 @@ type RunConfig struct {
 	Comm           communicator.Config `mapstructure:",squash"`
 	SSHKeyPairName string              `mapstructure:"ssh_keypair_name"`
 	SSHPrivateIp   bool                `mapstructure:"ssh_private_ip"`
-	PublicKey      string              `mapstructure:"ssh_private_key_file"`
 }
 
 func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
 	if c.SSHKeyPairName == "" && c.TemporaryKeyPairName == "" &&
-		c.Comm.SSHPrivateKey == "" && c.Comm.SSHPassword == "" {
+		c.Comm.SSHPrivateKey == "" && c.Comm.SSHPassword == "" && c.Comm.WinRMPassword == "" {
 
 		c.TemporaryKeyPairName = fmt.Sprintf("packer_%s", uuid.TimeOrderedUUID())
 	}

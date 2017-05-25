@@ -3,8 +3,8 @@ package ecs
 import (
 	"fmt"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/packer/packer"
 	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
 )
 
 type stepRunAlicloudInstance struct {
@@ -22,7 +22,7 @@ func (s *stepRunAlicloudInstance) Run(state multistep.StateBag) multistep.StepAc
 		ui.Error(err.Error())
 		return multistep.ActionHalt
 	}
-	ui.Say("Alicloud instance starting")
+	ui.Say("Alcoud instance starting")
 	err = client.WaitForInstance(instance.InstanceId, ecs.Running, ALICLOUD_DEFAULT_TIMEOUT)
 	if err != nil {
 		err := fmt.Errorf("Starting alicloud instance timeout: %s", err)

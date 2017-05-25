@@ -3,12 +3,12 @@
 package ecs
 
 import (
+	"github.com/hashicorp/packer/common"
+	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/helper/config"
+	"github.com/hashicorp/packer/packer"
+	"github.com/hashicorp/packer/template/interpolate"
 	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/common"
-	"github.com/mitchellh/packer/helper/communicator"
-	"github.com/mitchellh/packer/helper/config"
-	"github.com/mitchellh/packer/packer"
-	"github.com/mitchellh/packer/template/interpolate"
 	"log"
 )
 
@@ -95,8 +95,10 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 			Debug:                b.config.PackerDebug,
 			KeyPairName:          b.config.SSHKeyPairName,
 			PrivateKeyFile:       b.config.Comm.SSHPrivateKey,
-			PublicKeyFile:        b.config.PublicKey,
 			TemporaryKeyPairName: b.config.TemporaryKeyPairName,
+			SSHAgentAuth:         b.config.Comm.SSHAgentAuth,
+			//DebugKeyPath:          b.config.Com
+			RegionId: b.config.AlicloudRegion,
 		},
 	}
 	if b.chooseNetworkType() == VpcNet {
@@ -135,7 +137,6 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 			AssociatePublicIpAddress: b.config.AssociatePublicIpAddress,
 			RegionId:                 b.config.AlicloudRegion,
 			InternetChargeType:       b.config.InternetChargeType,
-			Bandwidth:                b.config.InternetMaxBandwidthOut,
 		})
 	} else {
 		steps = append(steps, &stepConfigAlicloudPublicIP{
@@ -145,6 +146,7 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 	steps = append(steps,
 		&stepRunAlicloudInstance{},
 		&stepMountAlicloudDisk{},
+		&stepAttachKeyPar{},
 		&communicator.StepConnect{
 			Config: &b.config.RunConfig.Comm,
 			Host: SSHHost(

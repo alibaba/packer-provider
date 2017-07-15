@@ -2,9 +2,10 @@ package ecs
 
 import (
 	"fmt"
+
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/packer/packer"
 	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
 )
 
 type stepMountAlicloudDisk struct {
@@ -19,10 +20,11 @@ func (s *stepMountAlicloudDisk) Run(state multistep.StateBag) multistep.StepActi
 	if len(config.ECSImagesDiskMappings) == 0 {
 		return multistep.ActionContinue
 	}
-	ui.Say("Start mounting Disks")
-	disks, _, err := client.DescribeDisks(&ecs.DescribeDisksArgs{InstanceId: instance.InstanceId, RegionId: instance.RegionId})
+	ui.Say("Mounting disks.")
+	disks, _, err := client.DescribeDisks(&ecs.DescribeDisksArgs{InstanceId: instance.InstanceId,
+		RegionId: instance.RegionId})
 	if err != nil {
-		err := fmt.Errorf("Error query alicloud disks failed: %s", err)
+		err := fmt.Errorf("Error querying disks: %s", err)
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
@@ -33,7 +35,7 @@ func (s *stepMountAlicloudDisk) Run(state multistep.StateBag) multistep.StepActi
 				InstanceId: instance.InstanceId,
 				Device:     getDevice(&disk, alicloudDiskDevices),
 			}); err != nil {
-				err := fmt.Errorf("Error mount alicloud disks failed: %s", err)
+				err := fmt.Errorf("Error mounting disks: %s", err)
 				state.Put("error", err)
 				ui.Error(err.Error())
 				return multistep.ActionHalt
@@ -42,13 +44,13 @@ func (s *stepMountAlicloudDisk) Run(state multistep.StateBag) multistep.StepActi
 	}
 	for _, disk := range disks {
 		if err := client.WaitForDisk(instance.RegionId, disk.DiskId, ecs.DiskStatusInUse, ALICLOUD_DEFAULT_SHORT_TIMEOUT); err != nil {
-			err := fmt.Errorf("Timeout waiting for mount of alicloud disk: %s", err)
+			err := fmt.Errorf("Timeout waiting for mount: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
 			return multistep.ActionHalt
 		}
 	}
-	ui.Say("Finish mounting disks")
+	ui.Say("Finished mounting disks.")
 	return multistep.ActionContinue
 }
 

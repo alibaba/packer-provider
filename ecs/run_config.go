@@ -3,10 +3,12 @@ package ecs
 import (
 	"errors"
 	"fmt"
-	"github.com/mitchellh/packer/common/uuid"
-	"github.com/mitchellh/packer/helper/communicator"
-	"github.com/mitchellh/packer/template/interpolate"
 	"os"
+	"strings"
+
+	"github.com/hashicorp/packer/common/uuid"
+	"github.com/hashicorp/packer/helper/communicator"
+	"github.com/hashicorp/packer/template/interpolate"
 )
 
 type RunConfig struct {
@@ -28,19 +30,18 @@ type RunConfig struct {
 	VSwitchName              string `mapstructure:"vswitch_id"`
 	InstanceName             string `mapstructure:"instance_name"`
 	InternetChargeType       string `mapstructure:"internet_charge_type"`
-	InternetMaxBandwidthOut  int    `mapstructure:"internet_max_bandwith_out"`
+	InternetMaxBandwidthOut  int    `mapstructure:"internet_max_bandwidth_out"`
 	TemporaryKeyPairName     string `mapstructure:"temporary_key_pair_name"`
 
 	// Communicator settings
 	Comm           communicator.Config `mapstructure:",squash"`
 	SSHKeyPairName string              `mapstructure:"ssh_keypair_name"`
 	SSHPrivateIp   bool                `mapstructure:"ssh_private_ip"`
-	PublicKey      string              `mapstructure:"ssh_private_key_file"`
 }
 
 func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
 	if c.SSHKeyPairName == "" && c.TemporaryKeyPairName == "" &&
-		c.Comm.SSHPrivateKey == "" && c.Comm.SSHPassword == "" {
+		c.Comm.SSHPrivateKey == "" && c.Comm.SSHPassword == "" && c.Comm.WinRMPassword == "" {
 
 		c.TemporaryKeyPairName = fmt.Sprintf("packer_%s", uuid.TimeOrderedUUID())
 	}
@@ -49,6 +50,10 @@ func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
 	errs := c.Comm.Prepare(ctx)
 	if c.AlicloudSourceImage == "" {
 		errs = append(errs, errors.New("A source_image must be specified"))
+	}
+
+	if strings.TrimSpace(c.AlicloudSourceImage) != c.AlicloudSourceImage {
+		errs = append(errs, errors.New("The source_image can't include spaces"))
 	}
 
 	if c.InstanceType == "" {

@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"fmt"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
-	builderT "github.com/mitchellh/packer/helper/builder/testing"
-	"github.com/mitchellh/packer/packer"
+	builderT "github.com/hashicorp/packer/helper/builder/testing"
+	"github.com/hashicorp/packer/packer"
 )
 
 func TestBuilderAcc_basic(t *testing.T) {
@@ -21,26 +22,26 @@ func TestBuilderAcc_basic(t *testing.T) {
 	})
 }
 
-func TestBuilderAcc_windows(t *testing.T) {
-	builderT.Test(t, builderT.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		Builder:  &Builder{},
-		Template: testBuilderAccWindows,
-	})
-}
+//func TestBuilderAcc_windows(t *testing.T) {
+//	builderT.Test(t, builderT.TestCase{
+//		PreCheck: func() {
+//			testAccPreCheck(t)
+//		},
+//		Builder:  &Builder{},
+//		Template: testBuilderAccWindows,
+//	})
+//}
 
-func TestBuilderAcc_regionCopy(t *testing.T) {
-	builderT.Test(t, builderT.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		Builder:  &Builder{},
-		Template: testBuilderAccRegionCopy,
-		Check:    checkRegionCopy([]string{"cn-hangzhou", "cn-shenzhen"}),
-	})
-}
+//func TestBuilderAcc_regionCopy(t *testing.T) {
+//	builderT.Test(t, builderT.TestCase{
+//		PreCheck: func() {
+//			testAccPreCheck(t)
+//		},
+//		Builder:  &Builder{},
+//		Template: testBuilderAccRegionCopy,
+//		Check:    checkRegionCopy([]string{"cn-hangzhou", "cn-shenzhen"}),
+//	})
+//}
 
 func TestBuilderAcc_forceDelete(t *testing.T) {
 	// Build the same alicloud image twice, with ecs_image_force_delete on the second run
@@ -123,7 +124,8 @@ func checkSnapshotsDeleted(snapshotIds []string) builderT.TestCheckFunc {
 			return fmt.Errorf("Query snapshot failed %v", err)
 		}
 		if len(snapshotResp) > 0 {
-			return fmt.Errorf("Snapshots weren't successfully deleted by `ecs_image_force_delete_snapshots`")
+			return fmt.Errorf("Snapshots weren't successfully deleted by " +
+				"`ecs_image_force_delete_snapshots`")
 		}
 		return nil
 	}
@@ -144,17 +146,21 @@ func checkECSImageSharing(uid string) builderT.TestCheckFunc {
 
 		// describe the image, get block devices with a snapshot
 		client, _ := testAliyunClient()
-		imageSharePermissionResponse, err := client.DescribeImageSharePermission(&ecs.ModifyImageSharePermissionArgs{
-			RegionId: "cn-beijing",
-			ImageId:  artifact.AlicloudImages["cn-beijing"],
-		})
+		imageSharePermissionResponse, err := client.DescribeImageSharePermission(
+			&ecs.ModifyImageSharePermissionArgs{
+				RegionId: "cn-beijing",
+				ImageId:  artifact.AlicloudImages["cn-beijing"],
+			})
 
 		if err != nil {
-			return fmt.Errorf("Error retrieving Image Attributes for ECS Image Artifact (%#v) in ECS Image Sharing Test: %s", artifact, err)
+			return fmt.Errorf("Error retrieving Image Attributes for ECS Image Artifact (%#v) "+
+				"in ECS Image Sharing Test: %s", artifact, err)
 		}
 
-		if len(imageSharePermissionResponse.Accounts.Account) != 1 && imageSharePermissionResponse.Accounts.Account[0].AliyunId != uid {
-			return fmt.Errorf("share account is incorrect %d", len(imageSharePermissionResponse.Accounts.Account))
+		if len(imageSharePermissionResponse.Accounts.Account) != 1 &&
+			imageSharePermissionResponse.Accounts.Account[0].AliyunId != uid {
+			return fmt.Errorf("share account is incorrect %d",
+				len(imageSharePermissionResponse.Accounts.Account))
 		}
 
 		return nil
@@ -230,7 +236,7 @@ const testBuilderAccBasic = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"centos_7_2_64_40G_base_20170222.vhd",
+		"source_image":"ubuntu_16_0402_64_40G_base_20170222.vhd",
 		"ssh_username": "ubuntu",
 		"io_optimized":"true",
 		"ssh_username":"root",
@@ -244,7 +250,7 @@ const testBuilderAccRegionCopy = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"centos_7_2_64_40G_base_20170222.vhd",
+		"source_image":"ubuntu_16_0402_64_40G_base_20170222.vhd",
 		"io_optimized":"true",
 		"ssh_username":"root",
 		"image_name": "packer-test_{{timestamp}}",
@@ -259,7 +265,7 @@ const testBuilderAccForceDelete = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"centos_7_2_64_40G_base_20170222.vhd",
+		"source_image":"ubuntu_16_0402_64_40G_base_20170222.vhd",
 		"io_optimized":"true",
 		"ssh_username":"root",
 		"image_force_delete": "%s",
@@ -274,7 +280,7 @@ const testBuilderAccForceDeleteSnapshot = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"centos_7_2_64_40G_base_20170222.vhd",
+		"source_image":"ubuntu_16_0402_64_40G_base_20170222.vhd",
 		"io_optimized":"true",
 		"ssh_username":"root",
 		"image_force_delete_snapshots": "%s",
@@ -291,7 +297,7 @@ const testBuilderAccSharing = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"centos_7_2_64_40G_base_20170222.vhd",
+		"source_image":"ubuntu_16_0402_64_40G_base_20170222.vhd",
 		"io_optimized":"true",
 		"ssh_username":"root",
 		"image_name": "packer-test_{{timestamp}}",
@@ -313,7 +319,7 @@ const testBuilderAccWindows = `
 		"type": "test",
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
-		"source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
+		"source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170301.vhd",
 		"io_optimized":"true",
 		"image_force_delete":"true",
 		"communicator": "winrm",

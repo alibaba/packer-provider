@@ -2,32 +2,13 @@ package ecs
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/common"
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/mitchellh/multistep"
-	"github.com/mitchellh/packer/packer"
 	"io/ioutil"
 	"log"
-	"strings"
-)
 
-const (
-	shebang      = "#!/bin/sh\n"
-	key_function = `
-export ssh_directory="/root/.ssh"
-export authorized_keys=${ssh_directory}/authorized_keys
-if [ -f "${authorized_keys}" ] ; then
-	isKeyExist=$(egrep -v "${user_public_key}" "${authorized_keys}")
-	if [ ! "${isKeyExist}" ] ; then
-		echo ${user_public_key} >> ${ssh_directory}/authorized_keys
-	fi
-else
-	if [ ! -d "${ssh_directory}" ] ; then
-		mkdir -p ${ssh_directory}
-	fi
-	echo ${user_public_key} >> ${ssh_directory}/authorized_keys
-fi
-`
+	"github.com/denverdino/aliyungo/common"
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/packer/packer"
+	"github.com/mitchellh/multistep"
 )
 
 type stepCreateAlicloudInstance struct {
@@ -62,7 +43,7 @@ func (s *stepCreateAlicloudInstance) Run(state multistep.StateBag) multistep.Ste
 	if password == "" && config.Comm.WinRMPassword != "" {
 		password = config.Comm.WinRMPassword
 	}
-	ui.Say("Start creating alicloud instance")
+	ui.Say("Creating instance.")
 	if network_type == VpcNet {
 		userData, err := s.getUserData(state)
 		if err != nil {
@@ -87,7 +68,7 @@ func (s *stepCreateAlicloudInstance) Run(state multistep.StateBag) multistep.Ste
 			DataDisk:                diskDeviceToDiskType(config.AlicloudImageConfig.ECSImagesDiskMappings),
 		})
 		if err != nil {
-			err := fmt.Errorf("Error create alicloud instance: %s", err)
+			err := fmt.Errorf("Error creating instance: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
 			return multistep.ActionHalt
@@ -113,7 +94,7 @@ func (s *stepCreateAlicloudInstance) Run(state multistep.StateBag) multistep.Ste
 			DataDisk:                diskDeviceToDiskType(config.AlicloudImageConfig.ECSImagesDiskMappings),
 		})
 		if err != nil {
-			err := fmt.Errorf("Error create instance: %s", err)
+			err := fmt.Errorf("Error creating instance: %s", err)
 			state.Put("error", err)
 			ui.Error(err.Error())
 			return multistep.ActionHalt
@@ -128,7 +109,7 @@ func (s *stepCreateAlicloudInstance) Run(state multistep.StateBag) multistep.Ste
 	}
 	instance, err := client.DescribeInstanceAttribute(instanceId)
 	if err != nil {
-		ui.Say(fmt.Sprint(err))
+		ui.Say(err.Error())
 		return multistep.ActionHalt
 	}
 	s.instance = instance
@@ -146,18 +127,12 @@ func (s *stepCreateAlicloudInstance) Cleanup(state multistep.StateBag) {
 	ui := state.Get("ui").(packer.Ui)
 	err := client.DeleteInstance(s.instance.InstanceId)
 	if err != nil {
-		ui.Say(fmt.Sprintf("Cleaning instance: %s failed ", s.instance.InstanceId))
+		ui.Say(fmt.Sprintf("Failed to clean up instance %s: %v", s.instance.InstanceId, err.Error()))
 	}
 
 }
 
 func (s *stepCreateAlicloudInstance) getUserData(state multistep.StateBag) (string, error) {
-	config := state.Get("config").(Config)
-	publicKey := ""
-	if publickey_temp, ok := state.GetOk("publickKey"); ok {
-		publicKey = publickey_temp.(string)
-		publicKey = strings.TrimRight(publicKey, "\n")
-	}
 	userData := s.UserData
 	if s.UserDataFile != "" {
 		data, err := ioutil.ReadFile(s.UserDataFile)
@@ -165,16 +140,6 @@ func (s *stepCreateAlicloudInstance) getUserData(state multistep.StateBag) (stri
 			return "", err
 		}
 		userData = string(data)
-	}
-
-	if config.Comm.SSHPrivateKey != "" || config.TemporaryKeyPairName != "" {
-		if userData == "" {
-			userData = shebang
-		} else {
-			userData = userData + "\n\n"
-		}
-		userData = userData + "export user_public_key=\"" + publicKey + "\""
-		userData = userData + key_function
 	}
 	log.Printf(userData)
 	return userData, nil

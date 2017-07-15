@@ -4,7 +4,7 @@ package main
 import (
 	"github.com/alibaba/packer-provider/alicloud-import"
 	"github.com/alibaba/packer-provider/ecs"
-	"github.com/mitchellh/packer/packer/plugin"
+	"github.com/hashicorp/packer/packer/plugin"
 )
 
 func main() {

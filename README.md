@@ -108,7 +108,37 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
 }
 
 ```
-##
+### Create a simple image with redis installed and mounted disk
+```
+{
+  "variables": {
+    "access_key": "{{env `ALICLOUD_ACCESS_KEY`}}",
+    "secret_key": "{{env `ALICLOUD_SECRET_KEY`}}"
+  },
+  "builders": [{
+    "type":"alicloud-ecs",
+    "access_key":"{{user `access_key`}}",
+    "secret_key":"{{user `secret_key`}}",
+    "region":"cn-beijing",
+    "image_name":"packer_with_data_disk",
+    "source_image":"centos_7_2_64_40G_base_20170222.vhd",
+    "ssh_username":"root",
+    "instance_type":"ecs.n1.tiny",
+    "io_optimized":"true",
+    "image_disk_mappings":[{"disk_name":"data1","disk_size":20},{"disk_name":"data1","disk_size":20,"disk_device":"/dev/xvdz"}]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sleep 30",
+      "yum install redis.x86_64 -y"
+    ]
+  }]
+}
+```
+### Here are [more examples](https://github.com/alibaba/packer-provider/tree/master/examples/alicloud) include chef, jenkins image template etc.
+
+## 
 ### How to contribute code
 * If you are not sure or have any doubts, feel free to ask and/or submit an issue or PR. We appreciate all contributions and don't want to create artificial obstacles that get in the way.
 * Contributions are welcome and will be merged via PRs.

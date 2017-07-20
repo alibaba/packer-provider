@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"fmt"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/packer/packer"
@@ -42,7 +43,7 @@ func (s *setpRegionCopyAlicloudImage) Run(state multistep.StateBag) multistep.St
 			})
 		if err != nil {
 			state.Put("error", err)
-			ui.Say(fmt.Sprintf("Error copy alicloud images: %s", err))
+			ui.Say(fmt.Sprintf("Error copying images: %s", err))
 			return multistep.ActionHalt
 		}
 		alicloudImages[destinationRegion] = imageId
@@ -57,17 +58,14 @@ func (s *setpRegionCopyAlicloudImage) Cleanup(state multistep.StateBag) {
 		ui := state.Get("ui").(packer.Ui)
 		client := state.Get("client").(*ecs.Client)
 		alicloudImages := state.Get("alicloudimages").(map[string]string)
-		ui.Say(fmt.Sprintf("Cancel copy image because cancelation or error..."))
+		ui.Say(fmt.Sprintf("Stopping copy image because cancellation or error..."))
 		for copyedRegionId, copyedImageId := range alicloudImages {
 			if copyedRegionId == s.RegionId {
 				continue
 			}
 			if err := client.CancelCopyImage(common.Region(copyedRegionId), copyedImageId); err != nil {
-				ui.Say(fmt.Sprintf("Cancel copy image has error %v", err))
+				ui.Say(fmt.Sprintf("Error cancelling copy image: %v", err))
 			}
-
 		}
-
 	}
-
 }

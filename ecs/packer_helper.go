@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/packer/packer"
 	"github.com/mitchellh/multistep"
 )
@@ -13,9 +14,9 @@ func message(state multistep.StateBag, module string) {
 	ui := state.Get("ui").(packer.Ui)
 
 	if cancelled || halted {
-		ui.Say(fmt.Sprintf("Delete the %s because cancelation or error...", module))
+		ui.Say(fmt.Sprintf("Deleting %s because of cancellation or error...", module))
 	} else {
-		ui.Say(fmt.Sprintf("Clean the created %s", module))
+		ui.Say(fmt.Sprintf("Cleaning up '%s'", module))
 	}
 
 }

@@ -2,13 +2,14 @@ package ecs
 
 import (
 	"fmt"
+	"net"
+	"os"
+	"time"
+
 	packerssh "github.com/hashicorp/packer/communicator/ssh"
 	"github.com/mitchellh/multistep"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
-	"net"
-	"os"
-	"time"
 )
 
 var (
@@ -48,6 +49,7 @@ func SSHConfig(useAgent bool, username, password string) func(multistep.StateBag
 				Auth: []ssh.AuthMethod{
 					ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers),
 				},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 			}, nil
 		}
 
@@ -63,6 +65,7 @@ func SSHConfig(useAgent bool, username, password string) func(multistep.StateBag
 				Auth: []ssh.AuthMethod{
 					ssh.PublicKeys(signer),
 				},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 			}, nil
 
 		} else {
@@ -72,7 +75,9 @@ func SSHConfig(useAgent bool, username, password string) func(multistep.StateBag
 					ssh.Password(password),
 					ssh.KeyboardInteractive(
 						packerssh.PasswordKeyboardInteractive(password)),
-				}}, nil
+				},
+				HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			}, nil
 		}
 	}
 }

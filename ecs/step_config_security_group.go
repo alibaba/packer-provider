@@ -126,7 +126,7 @@ func (s *stepConfigAlicloudSecurityGroup) Cleanup(state multistep.StateBag) {
 		if err := client.DeleteSecurityGroup(common.Region(s.RegionId), s.SecurityGroupId); err != nil {
 			e, _ := err.(*common.Error)
 			if e.Code == "DependencyViolation" && time.Now().Before(start) {
-				time.Sleep(1 * time.Second)
+				time.Sleep(5 * time.Second)
 				continue
 			}
 			ui.Error(fmt.Sprintf("Failed to delete security group, it may still be around: %s", err))

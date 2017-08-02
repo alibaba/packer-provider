@@ -67,6 +67,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "ssh_username":"root",
     "instance_type":"ecs.n1.tiny",
     "io_optimized":"true",
+    "internet_charge_type":"PayByTraffic",
     "image_force_delete":"true"
   }],
   "provisioners": [{
@@ -94,6 +95,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "image_name":"packer_test",
     "source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
     "instance_type":"ecs.n1.tiny",
+    "internet_charge_type":"PayByTraffic",
     "io_optimized":"true",
     "image_force_delete":"true",
     "communicator": "winrm",
@@ -124,6 +126,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "source_image":"centos_7_2_64_40G_base_20170222.vhd",
     "ssh_username":"root",
     "instance_type":"ecs.n1.tiny",
+    "internet_charge_type":"PayByTraffic",
     "io_optimized":"true",
     "image_disk_mappings":[{"disk_name":"data1","disk_size":20},{"disk_name":"data1","disk_size":20,"disk_device":"/dev/xvdz"}]
   }],

@@ -15,34 +15,34 @@
 			"revisionTime": "2017-01-13T02:27:42Z"
 		},
 		{
-			"checksumSHA1": "4YIveqfMA1MH8oX8YMG7rDSl+ms=",
+			"checksumSHA1": "b2m7aICkBOz9JqmnX2kdDN4wgjI=",
 			"path": "github.com/denverdino/aliyungo/common",
-			"revision": "920561accef9a3e387f10bf8f93be73d6bb55054",
-			"revisionTime": "2017-05-25T09:08:54Z"
+			"revision": "b8a81c0f54003ea306ef566807919955d639cd48",
+			"revisionTime": "2017-08-02T08:24:47Z"
 		},
 		{
-			"checksumSHA1": "x4l/zVF/J4ibAH39pNrSvTnFsPI=",
+			"checksumSHA1": "5UYxIc/DZ5g0SM7qwXskoyNOc78=",
 			"path": "github.com/denverdino/aliyungo/ecs",
-			"revision": "920561accef9a3e387f10bf8f93be73d6bb55054",
-			"revisionTime": "2017-05-25T09:08:54Z"
+			"revision": "b8a81c0f54003ea306ef566807919955d639cd48",
+			"revisionTime": "2017-08-02T08:24:47Z"
 		},
 		{
-			"checksumSHA1": "40PbgN4Emct6AIiJbhPoEdd+vIA=",
+			"checksumSHA1": "VfIjW9Tf2eLmHrgrvk1wRnBaxTE=",
 			"path": "github.com/denverdino/aliyungo/ram",
-			"revision": "920561accef9a3e387f10bf8f93be73d6bb55054",
-			"revisionTime": "2017-05-25T09:08:54Z"
+			"revision": "b8a81c0f54003ea306ef566807919955d639cd48",
+			"revisionTime": "2017-08-02T08:24:47Z"
 		},
 		{
-			"checksumSHA1": "iZftKqx5jdcEaMJNJhrb5QwmMuc=",
+			"checksumSHA1": "pQHH9wpyS0e4wpW0erxe3D7OILM=",
 			"path": "github.com/denverdino/aliyungo/slb",
-			"revision": "920561accef9a3e387f10bf8f93be73d6bb55054",
-			"revisionTime": "2017-05-25T09:08:54Z"
+			"revision": "b8a81c0f54003ea306ef566807919955d639cd48",
+			"revisionTime": "2017-08-02T08:24:47Z"
 		},
 		{
 			"checksumSHA1": "piZlmhWPLGxYkXLysTrjcXllO4c=",
 			"path": "github.com/denverdino/aliyungo/util",
-			"revision": "920561accef9a3e387f10bf8f93be73d6bb55054",
-			"revisionTime": "2017-05-25T09:08:54Z"
+			"revision": "b8a81c0f54003ea306ef566807919955d639cd48",
+			"revisionTime": "2017-08-02T08:24:47Z"
 		},
 		{
 			"checksumSHA1": "GCskdwYAPW2S34918Z5CgNMJ2Wc=",
@@ -183,13 +183,13 @@
 			"revisionTime": "2013-11-06T22:25:44Z"
 		},
 		{
-			"checksumSHA1": "t7hEeujQesCSzjZIPcE80XgQ9M0=",
+			"checksumSHA1": "DlpjiTUHFFoU39yh4FIKS8g7L7A=",
 			"path": "github.com/masterzen/azure-sdk-for-go/core/http",
 			"revision": "ee4f0065d00cd12b542f18f5bc45799e88163b12",
 			"revisionTime": "2016-10-14T13:56:28Z"
 		},
 		{
-			"checksumSHA1": "xJVMikTtYbfI2KqKeUXaO4292JU=",
+			"checksumSHA1": "uu+PYXYi4sSgXbRnGywIo7wG3JA=",
 			"path": "github.com/masterzen/azure-sdk-for-go/core/tls",
 			"revision": "ee4f0065d00cd12b542f18f5bc45799e88163b12",
 			"revisionTime": "2016-10-14T13:56:28Z"

@@ -1,5 +1,5 @@
 {"variables": {
-    "box_basename": "centos-6.8",
+    "box_basename": "centos-6.9",
     "build_timestamp": "{{isotime \"20060102150405\"}}",
     "cpus": "1",
     "disk_size": "4096",
@@ -7,17 +7,17 @@
     "headless": "",
     "http_proxy": "{{env `http_proxy`}}",
     "https_proxy": "{{env `https_proxy`}}",
-    "iso_checksum": "0ca12fe5f28c2ceed4f4084b41ff8a0b",
     "iso_checksum_type": "md5",
-    "iso_name": "CentOS-6.8-x86_64-minimal.iso",
-    "ks_path": "centos-6.8/ks.cfg",
+    "iso_checksum": "af4a1640c0c6f348c6c41f1ea9e192a2",
+    "iso_name": "CentOS-6.9-x86_64-minimal.iso",
+    "ks_path": "centos-6.9/ks.cfg",
     "memory": "512",
     "metadata": "floppy/dummy_metadata.json",
     "mirror": "http://mirrors.aliyun.com/centos",
-    "mirror_directory": "6.8/isos/x86_64",
-    "name": "centos-6.8",
+    "mirror_directory": "6.9/isos/x86_64",
+    "name": "centos-6.9",
     "no_proxy": "{{env `no_proxy`}}",
-    "template": "centos-6.8-x86_64",
+    "template": "centos-6.9-x86_64",
     "version": "2.1.TIMESTAMP"
   },
   "builders":[
@@ -45,7 +45,14 @@
       "format": "raw"
     }
   ],
-"post-processors":[
+  "provisioners": [{
+      "type": "shell",
+      "inline": [
+            "sleep 30",
+            "yum install cloud-util cloud-init -y"
+          ]
+    }],
+  "post-processors":[
     {
       "type":"alicloud-import",
       "oss_bucket_name": "packer",

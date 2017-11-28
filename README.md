@@ -147,7 +147,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
 * Contributions are welcome and will be merged via PRs.
 
 ### Contributors
-* zhuzhih2017(dongxiao.zzh@alibaba-inc.com)
+* zhuzhih2017
 
 ### License
 * This project is licensed under the Apache License, Version 2.0. See [LICENSE](https://github.com/alibaba/packer-provider/blob/master/LICENSE) for the full license text.

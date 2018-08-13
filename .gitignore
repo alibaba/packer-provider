@@ -7,4 +7,6 @@ examples/.DS_Store
 examples/alicloud/.DS_Store
 release-tools
 release.sh
+.idea/
+
 

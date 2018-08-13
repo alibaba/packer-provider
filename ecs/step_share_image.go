@@ -1,29 +1,30 @@
 package ecs
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
-	"github.com/mitchellh/multistep"
 )
 
-type setpShareAlicloudImage struct {
+type stepShareAlicloudImage struct {
 	AlicloudImageShareAccounts   []string
 	AlicloudImageUNShareAccounts []string
 	RegionId                     string
 }
 
-func (s *setpShareAlicloudImage) Run(state multistep.StateBag) multistep.StepAction {
+func (s *stepShareAlicloudImage) Run(_ context.Context, state multistep.StateBag) multistep.StepAction {
 	client := state.Get("client").(*ecs.Client)
 	ui := state.Get("ui").(packer.Ui)
 	alicloudImages := state.Get("alicloudimages").(map[string]string)
-	for copyedRegion, copyedImageId := range alicloudImages {
+	for copiedRegion, copiedImageId := range alicloudImages {
 		err := client.ModifyImageSharePermission(
 			&ecs.ModifyImageSharePermissionArgs{
-				RegionId:      common.Region(copyedRegion),
-				ImageId:       copyedImageId,
+				RegionId:      common.Region(copiedRegion),
+				ImageId:       copiedImageId,
 				AddAccount:    s.AlicloudImageShareAccounts,
 				RemoveAccount: s.AlicloudImageUNShareAccounts,
 			})
@@ -36,7 +37,7 @@ func (s *setpShareAlicloudImage) Run(state multistep.StateBag) multistep.StepAct
 	return multistep.ActionContinue
 }
 
-func (s *setpShareAlicloudImage) Cleanup(state multistep.StateBag) {
+func (s *stepShareAlicloudImage) Cleanup(state multistep.StateBag) {
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
 	if cancelled || halted {
@@ -44,11 +45,11 @@ func (s *setpShareAlicloudImage) Cleanup(state multistep.StateBag) {
 		client := state.Get("client").(*ecs.Client)
 		alicloudImages := state.Get("alicloudimages").(map[string]string)
 		ui.Say("Restoring image share permission because cancellations or error...")
-		for copyedRegion, copyedImageId := range alicloudImages {
+		for copiedRegion, copiedImageId := range alicloudImages {
 			err := client.ModifyImageSharePermission(
 				&ecs.ModifyImageSharePermissionArgs{
-					RegionId:      common.Region(copyedRegion),
-					ImageId:       copyedImageId,
+					RegionId:      common.Region(copiedRegion),
+					ImageId:       copiedImageId,
 					AddAccount:    s.AlicloudImageUNShareAccounts,
 					RemoveAccount: s.AlicloudImageShareAccounts,
 				})

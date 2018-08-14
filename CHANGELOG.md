@@ -4,8 +4,8 @@
 
 IMPROVEMENTS:
 
-- Support describing marketplace image ([#34](https://github.com/alibaba/packer-provider/pull/34))
-- Sync with official packer ([#33](https://github.com/alibaba/packer-provider/pull/33))
+- Support describing marketplace image ([#39](https://github.com/alibaba/packer-provider/pull/39))
+- Sync with official packer ([#38](https://github.com/alibaba/packer-provider/pull/38))
 
 ## 1.1.3 (August 3, 2017)
 

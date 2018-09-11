@@ -1,5 +1,11 @@
 ## 1.3.0 (Unreleased)
 
+## 1.2.1 (September 11, 2018)
+
+IMPROVEMENTS:
+
+- Support ssh with private ip address ([#42](https://github.com/alibaba/packer-provider/pull/42))
+
 ## 1.2.0 (August 14, 2018)
 
 IMPROVEMENTS:

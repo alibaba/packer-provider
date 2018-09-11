@@ -123,6 +123,12 @@
 			"revisionTime": "2017-07-14T14:01:51Z"
 		},
 		{
+			"checksumSHA1": "R/C/tPGxwBRK+AXiyFKQCuZ97to=",
+			"path": "github.com/hashicorp/packer/helper/builder/testing",
+			"revision": "351cdc85086c8d82de3d0b6eef4014f6b40db5e5",
+			"revisionTime": "2018-09-10T19:12:40Z"
+		},
+		{
 			"checksumSHA1": "q2aQ4NsFrC4oSfFnEy2dGsFoURg=",
 			"path": "github.com/hashicorp/packer/helper/common",
 			"revision": "39fc8593deae0999d211c482cd756cd4fdc55832",

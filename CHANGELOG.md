@@ -1,5 +1,9 @@
 ## 1.3.0 (Unreleased)
 
+## 1.2.2 (September 16, 2018)
+
+- Support adding tags to image ([#43](https://github.com/alibaba/packer-provider/pull/43))
+
 ## 1.2.1 (September 11, 2018)
 
 IMPROVEMENTS:

@@ -165,7 +165,8 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 		},
 		&common.StepProvision{},
 		&stepStopAlicloudInstance{
-			ForceStop: b.config.ForceStopInstance,
+			ForceStop:   b.config.ForceStopInstance,
+			DisableStop: b.config.DisableStopInstance,
 		},
 		&stepDeleteAlicloudImageSnapshots{
 			AlicloudImageForceDeleteSnapshots: b.config.AlicloudImageForceDeleteSnapshots,

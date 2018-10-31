@@ -1,6 +1,20 @@
 ## 1.3.0 (Unreleased)
 
+## 1.2.4 (October 31, 2018)
+
+IMPROVEMENTS:
+
+- add options for system disk properties ([#48](https://github.com/alibaba/packer-provider/pull/48))
+
+## 1.2.3 (September 28, 2018)
+
+IMPROVEMENTS:
+
+- Support disable_stop_instance option for some specific scenarios ([#45](https://github.com/alibaba/packer-provider/pull/45))
+
 ## 1.2.2 (September 16, 2018)
+
+IMPROVEMENTS:
 
 - Support adding tags to image ([#43](https://github.com/alibaba/packer-provider/pull/43))
 

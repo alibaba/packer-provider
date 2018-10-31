@@ -39,7 +39,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     alicloud output will be in this color.
     
     ==> alicloud: Force delete flag found, skipping prevalidating Alicloud ECS Image Name
-        alicloud: Found Image ID: centos7u2_64_40G_cloudinit_20160728.raw
+        alicloud: Found Image ID: centos_7_03_64_20G_alibase_20170818.vhd
     ==> alicloud: allocated eip address 121.196.193.14
     ==> alicloud: Instance starting
     ==> alicloud: Waiting for SSH to become available...
@@ -63,7 +63,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",
     "image_name":"packer_test2",
-    "source_image":"centos_7_2_64_40G_base_20170222.vhd",
+    "source_image":"centos_7_03_64_20G_alibase_20170818.vhd",
     "ssh_username":"root",
     "instance_type":"ecs.n1.tiny",
     "io_optimized":"true",
@@ -93,7 +93,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",
     "image_name":"packer_test",
-    "source_image":"win2008_64_ent_r2_zh-cn_40G_alibase_20170118.vhd",
+    "source_image":"win2008r2_64_ent_sp1_zh-cn_40G_alibase_20170915.vhd",
     "instance_type":"ecs.n1.tiny",
     "internet_charge_type":"PayByTraffic",
     "io_optimized":"true",
@@ -123,7 +123,7 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "secret_key":"{{user `secret_key`}}",
     "region":"cn-beijing",
     "image_name":"packer_with_data_disk",
-    "source_image":"centos_7_2_64_40G_base_20170222.vhd",
+    "source_image":"centos_7_03_64_20G_alibase_20170818.vhd",
     "ssh_username":"root",
     "instance_type":"ecs.n1.tiny",
     "internet_charge_type":"PayByTraffic",
@@ -139,6 +139,10 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
   }]
 }
 ```
+
+> Note: Images can become deprecated after a while; run
+`aliyun ecs DescribeImages` to find one that exists.
+
 ### Here are [more examples](https://github.com/alibaba/packer-provider/tree/master/examples/alicloud) include chef, jenkins image template etc.
 
 ## 

@@ -1,5 +1,11 @@
 ## 1.3.0 (Unreleased)
 
+## 1.2.5 (November 18, 2018)
+
+IMPROVEMENTS:
+
+- Support creating image without data disks ([#50](https://github.com/alibaba/packer-provider/pull/50))
+
 ## 1.2.4 (October 31, 2018)
 
 IMPROVEMENTS:

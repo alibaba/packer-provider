@@ -33,6 +33,7 @@ type RunConfig struct {
 	InternetChargeType       string `mapstructure:"internet_charge_type"`
 	InternetMaxBandwidthOut  int    `mapstructure:"internet_max_bandwidth_out"`
 	TemporaryKeyPairName     string `mapstructure:"temporary_key_pair_name"`
+	WaitSnapshotReadyTimeout int    `mapstructure:"wait_snapshot_ready_timeout"`
 
 	// Communicator settings
 	Comm           communicator.Config `mapstructure:",squash"`

@@ -1,4 +1,10 @@
-## 1.3.0 (Unreleased)
+## 1.3.0 (November 26, 2018)
+
+IMPROVEMENTS:
+
+- Support wait_snapshot_ready_timeout for much bigger disk ([#53](https://github.com/alibaba/packer-provider/pull/53))
+- Apply tags to relevant snapshots ([#54](https://github.com/alibaba/packer-provider/pull/54))
+- Update windows examples ([#55](https://github.com/alibaba/packer-provider/pull/55))
 
 ## 1.2.5 (November 18, 2018)
 

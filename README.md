@@ -101,7 +101,8 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
     "communicator": "winrm",
     "winrm_port": 5985,
     "winrm_username": "Administrator",
-    "winrm_password": "Test1234"
+    "winrm_password": "Test1234",
+    "user_data_file": "examples/alicloud/basic/winrm_enable_userdata.ps1"
   }],
   "provisioners": [{
       "type": "powershell",
@@ -110,6 +111,11 @@ them into the folder under the packer **PATH** such as **/usr/local/packer**.
 }
 
 ```
+
+> Note: Since WinRM is closed by default in the system image. 
+    You need enable it by userdata in order to connect to the instance, 
+    check [winrm_enable_userdata.ps1](https://github.com/alibaba/packer-provider/tree/master/examples/alicloud/basic/winrm_enable_userdata.ps1) for details.
+
 ### Create a simple image with redis installed and mounted disk
 ```
 {

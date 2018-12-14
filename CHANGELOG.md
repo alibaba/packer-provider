@@ -1,3 +1,9 @@
+## 1.3.1 (December 14, 2018)
+
+MPROVEMENTS:
+
+- Support `-force` option and copied images and snapshots if corresponding options are specified ([#57](https://github.com/alibaba/packer-provider/pull/57))
+
 ## 1.3.0 (November 26, 2018)
 
 IMPROVEMENTS:

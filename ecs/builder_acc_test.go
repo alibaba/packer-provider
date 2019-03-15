@@ -1,13 +1,13 @@
 package ecs
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
+	"time"
 
-	"fmt"
-
-	"github.com/denverdino/aliyungo/common"
-	"github.com/denverdino/aliyungo/ecs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	builderT "github.com/hashicorp/packer/helper/builder/testing"
 	"github.com/hashicorp/packer/packer"
 )
@@ -89,11 +89,13 @@ func TestBuilderAcc_forceDeleteSnapshot(t *testing.T) {
 
 	// Get image data by image image name
 	client, _ := testAliyunClient()
-	images, _, _ := client.DescribeImages(&ecs.DescribeImagesArgs{
-		ImageName: "packer-test-" + destImageName,
-		RegionId:  common.Region("cn-beijing")})
 
-	image := images[0]
+	describeImagesRequest := ecs.CreateDescribeImagesRequest()
+	describeImagesRequest.RegionId = "cn-beijing"
+	describeImagesRequest.ImageName = "packer-test-" + destImageName
+	images, _ := client.DescribeImages(describeImagesRequest)
+
+	image := images.Images.Image[0]
 
 	// Get snapshot ids for image
 	snapshotIds := []string{}
@@ -122,22 +124,28 @@ func TestBuilderAcc_imageTags(t *testing.T) {
 		Template: testBuilderAccImageTags,
 		Check:    checkImageTags(),
 	})
-
 }
 
 func checkSnapshotsDeleted(snapshotIds []string) builderT.TestCheckFunc {
 	return func(artifacts []packer.Artifact) error {
 		// Verify the snapshots are gone
 		client, _ := testAliyunClient()
-		snapshotResp, _, err := client.DescribeSnapshots(
-			&ecs.DescribeSnapshotsArgs{RegionId: common.Region("cn-beijing"), SnapshotIds: snapshotIds},
-		)
+		data, err := json.Marshal(snapshotIds)
 		if err != nil {
-			return fmt.Errorf("Query snapshot failed %v", err)
+			return fmt.Errorf("Marshal snapshotIds array failed %v ", err)
 		}
-		if len(snapshotResp) > 0 {
+
+		describeSnapshotsRequest := ecs.CreateDescribeSnapshotsRequest()
+		describeSnapshotsRequest.RegionId = "cn-beijing"
+		describeSnapshotsRequest.SnapshotIds = string(data)
+		snapshotResp, err := client.DescribeSnapshots(describeSnapshotsRequest)
+		if err != nil {
+			return fmt.Errorf("Query snapshot failed %v ", err)
+		}
+		snapshots := snapshotResp.Snapshots.Snapshot
+		if len(snapshots) > 0 {
 			return fmt.Errorf("Snapshots weren't successfully deleted by " +
-				"`ecs_image_force_delete_snapshots`")
+				"`ecs_image_force_delete_snapshots` ")
 		}
 		return nil
 	}
@@ -158,15 +166,15 @@ func checkECSImageSharing(uid string) builderT.TestCheckFunc {
 
 		// describe the image, get block devices with a snapshot
 		client, _ := testAliyunClient()
-		imageSharePermissionResponse, err := client.DescribeImageSharePermission(
-			&ecs.ModifyImageSharePermissionArgs{
-				RegionId: "cn-beijing",
-				ImageId:  artifact.AlicloudImages["cn-beijing"],
-			})
+		describeImageSharePermissionRequest := ecs.CreateDescribeImageSharePermissionRequest()
+
+		describeImageSharePermissionRequest.RegionId = "cn-beijing"
+		describeImageSharePermissionRequest.ImageId = artifact.AlicloudImages["cn-beijing"]
+		imageSharePermissionResponse, err := client.DescribeImageSharePermission(describeImageSharePermissionRequest)
 
 		if err != nil {
 			return fmt.Errorf("Error retrieving Image Attributes for ECS Image Artifact (%#v) "+
-				"in ECS Image Sharing Test: %s", artifact, err)
+				"in ECS Image Sharing Test: %s ", artifact, err)
 		}
 
 		if len(imageSharePermissionResponse.Accounts.Account) != 1 &&
@@ -211,9 +219,13 @@ func checkRegionCopy(regions []string) builderT.TestCheckFunc {
 		if len(regionSet) > 0 {
 			return fmt.Errorf("didn't copy to: %#v", regionSet)
 		}
+
 		client, _ := testAliyunClient()
-		for key, value := range artifact.AlicloudImages {
-			client.WaitForImageReady(common.Region(key), value, 1800)
+		for region, image := range artifact.AlicloudImages {
+			_, err := client.WaitForImageStatus(region, image, ImageStatusAvailable, time.Duration(1800)*time.Second)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	}
@@ -224,33 +236,29 @@ func checkImageTags() builderT.TestCheckFunc {
 		if len(artifacts) > 1 {
 			return fmt.Errorf("more than 1 artifact")
 		}
-
 		// Get the actual *Artifact pointer so we can access the AMIs directly
 		artifactRaw := artifacts[0]
 		artifact, ok := artifactRaw.(*Artifact)
 		if !ok {
 			return fmt.Errorf("unknown artifact: %#v", artifactRaw)
 		}
-
 		// describe the image, get block devices with a snapshot
 		client, _ := testAliyunClient()
-		tags, _, err := client.DescribeTags(
-			&ecs.DescribeTagsArgs{
-				RegionId:     "cn-beijing",
-				ResourceType: ecs.TagResourceImage,
-				ResourceId:   artifact.AlicloudImages["cn-beijing"],
-			})
+		describeTagsReq := ecs.CreateDescribeTagsRequest()
 
+		describeTagsReq.RegionId = "cn-beijing"
+		describeTagsReq.ResourceType = "image"
+		describeTagsReq.ResourceId = artifact.AlicloudImages["cn-beijing"]
+		tagsresp, err := client.DescribeTags(describeTagsReq)
 		if err != nil {
 			return fmt.Errorf("Error retrieving Image Attributes for ECS Image Artifact (%#v) "+
-				"in ECS Image Tags Test: %s", artifact, err)
+				"in ECS Image Tags Test: %s ", artifact, err)
 		}
-
 		failed := false
+		tags := tagsresp.Tags.Tag
 		if len(tags) != 2 {
 			failed = true
 		}
-
 		if !failed {
 			for i := 0; i < len(tags); i++ {
 				if tags[i].TagKey == "TagKey1" && tags[i].TagValue != "TagValue1" {
@@ -262,11 +270,9 @@ func checkImageTags() builderT.TestCheckFunc {
 				}
 			}
 		}
-
 		if failed {
 			return fmt.Errorf("tags is not correctly set %#v", tags)
 		}
-
 		return nil
 	}
 }
@@ -281,7 +287,7 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func testAliyunClient() (*ecs.Client, error) {
+func testAliyunClient() (*ClientWrapper, error) {
 	access := &AlicloudAccessConfig{AlicloudRegion: "cn-beijing"}
 	err := access.Config()
 	if err != nil {
@@ -301,7 +307,6 @@ const testBuilderAccBasic = `
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
 		"source_image":"ubuntu_18_04_64_20G_alibase_20190223.vhd",
-		"ssh_username": "ubuntu",
 		"io_optimized":"true",
 		"ssh_username":"root",
 		"image_name": "packer-test_{{timestamp}}"
@@ -376,9 +381,8 @@ const testBuilderAccImageTags = `
 		"region": "cn-beijing",
 		"instance_type": "ecs.n1.tiny",
 		"source_image":"ubuntu_18_04_64_20G_alibase_20190223.vhd",
-		"ssh_username": "ubuntu",
+		"ssh_username": "root",
 		"io_optimized":"true",
-		"ssh_username":"root",
 		"image_name": "packer-test_{{timestamp}}",
 		"tags": {
 			"TagKey1": "TagValue1",

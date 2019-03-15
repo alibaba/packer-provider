@@ -32,20 +32,18 @@ type RunConfig struct {
 	InstanceName             string `mapstructure:"instance_name"`
 	InternetChargeType       string `mapstructure:"internet_charge_type"`
 	InternetMaxBandwidthOut  int    `mapstructure:"internet_max_bandwidth_out"`
-	TemporaryKeyPairName     string `mapstructure:"temporary_key_pair_name"`
 	WaitSnapshotReadyTimeout int    `mapstructure:"wait_snapshot_ready_timeout"`
 
 	// Communicator settings
-	Comm           communicator.Config `mapstructure:",squash"`
-	SSHKeyPairName string              `mapstructure:"ssh_keypair_name"`
-	SSHPrivateIp   bool                `mapstructure:"ssh_private_ip"`
+	Comm         communicator.Config `mapstructure:",squash"`
+	SSHPrivateIp bool                `mapstructure:"ssh_private_ip"`
 }
 
 func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
-	if c.SSHKeyPairName == "" && c.TemporaryKeyPairName == "" &&
-		c.Comm.SSHPrivateKey == "" && c.Comm.SSHPassword == "" && c.Comm.WinRMPassword == "" {
+	if c.Comm.SSHKeyPairName == "" && c.Comm.SSHTemporaryKeyPairName == "" &&
+		c.Comm.SSHPrivateKeyFile == "" && c.Comm.SSHPassword == "" && c.Comm.WinRMPassword == "" {
 
-		c.TemporaryKeyPairName = fmt.Sprintf("packer_%s", uuid.TimeOrderedUUID())
+		c.Comm.SSHTemporaryKeyPairName = fmt.Sprintf("packer_%s", uuid.TimeOrderedUUID())
 	}
 
 	// Validation
@@ -55,15 +53,15 @@ func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
 	}
 
 	if strings.TrimSpace(c.AlicloudSourceImage) != c.AlicloudSourceImage {
-		errs = append(errs, errors.New("The source_image can't include spaces"))
+		errs = append(errs, errors.New("The source_image can't include spaces "))
 	}
 
 	if c.InstanceType == "" {
-		errs = append(errs, errors.New("An alicloud_instance_type must be specified"))
+		errs = append(errs, errors.New("An alicloud_instance_type must be specified "))
 	}
 
 	if c.UserData != "" && c.UserDataFile != "" {
-		errs = append(errs, fmt.Errorf("Only one of user_data or user_data_file can be specified."))
+		errs = append(errs, fmt.Errorf("Only one of user_data or user_data_file can be specified. "))
 	} else if c.UserDataFile != "" {
 		if _, err := os.Stat(c.UserDataFile); err != nil {
 			errs = append(errs, fmt.Errorf("user_data_file not found: %s", c.UserDataFile))

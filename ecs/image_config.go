@@ -79,4 +79,3 @@ func (c *AlicloudImageConfig) Prepare(ctx *interpolate.Context) []error {
 
 	return nil
 }
-

@@ -3,6 +3,7 @@ package alicloudimport
 import (
 	"context"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"log"
 	"strconv"
 	"strings"
@@ -18,7 +19,6 @@ import (
 	"github.com/hashicorp/packer/helper/config"
 	"github.com/hashicorp/packer/packer"
 	"github.com/hashicorp/packer/template/interpolate"
-	"github.com/hashicorp/packer/version"
 )
 
 const (
@@ -30,8 +30,8 @@ const (
 )
 
 const (
-	PolicyType              = "System"
-	NoSetRoleError          = "NoSetRoletoECSServiceAccount"
+	PolicyTypeSystem        = "System"
+	NoSetRoleError          = "NoSetRoletoECSServiceAcount"
 	RoleNotExistError       = "EntityNotExist.Role"
 	DefaultImportRoleName   = "AliyunECSImageImportDefaultRole"
 	DefaultImportPolicyName = "AliyunECSImageImportRolePolicy"
@@ -103,7 +103,7 @@ func (p *PostProcessor) Configure(raws ...interface{}) error {
 	// Check and render oss_key_name
 	if err = interpolate.Validate(p.config.OSSKey, &p.config.ctx); err != nil {
 		errs = packer.MultiErrorAppend(
-			errs, fmt.Errorf("Error parsing oss_key_name template: %s ", err))
+			errs, fmt.Errorf("Error parsing oss_key_name template: %s", err))
 	}
 
 	// Check we have alicloud access variables defined somewhere
@@ -137,14 +137,15 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 	// Render this key since we didn't in the configure phase
 	p.config.OSSKey, err = interpolate.Render(p.config.OSSKey, &p.config.ctx)
 	if err != nil {
-		return nil, false, false, fmt.Errorf("Error rendering oss_key_name template: %s ", err)
+		return nil, false, false, fmt.Errorf("Error rendering oss_key_name template: %s", err)
 	}
 	if p.config.OSSKey == "" {
 		p.config.OSSKey = "Packer_" + strconv.Itoa(time.Now().Nanosecond())
 	}
-	log.Printf("Rendered oss_key_name as %s", p.config.OSSKey)
 
-	log.Println("Looking for RAW or VHD in artifact")
+	ui.Say(fmt.Sprintf("Rendered oss_key_name as %s", p.config.OSSKey))
+	ui.Say("Looking for RAW or VHD in artifact")
+
 	// Locate the files output from the builder
 	source := ""
 	for _, path := range artifact.Files() {
@@ -156,42 +157,43 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 
 	// Hope we found something useful
 	if source == "" {
-		return nil, false, false, fmt.Errorf("No vhd or raw file found in artifact from builder ")
+		return nil, false, false, fmt.Errorf("No vhd or raw file found in artifact from builder")
 	}
 
 	ecsClient, err := p.config.AlicloudAccessConfig.Client()
 	if err != nil {
 		return nil, false, false, fmt.Errorf("Failed to connect alicloud ecs  %s", err)
 	}
-	ecsClient.AppendUserAgent(Packer, version.FormattedVersion())
+
+	endpoint := getEndPoint(p.config.AlicloudRegion, p.config.OSSBucket)
 
 	describeImagesRequest := ecs.CreateDescribeImagesRequest()
 	describeImagesRequest.RegionId = p.config.AlicloudRegion
 	describeImagesRequest.ImageName = p.config.AlicloudImageName
 	imagesResponse, err := ecsClient.DescribeImages(describeImagesRequest)
 	if err != nil {
-		return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s ",
-			getEndPoint(p.config.OSSBucket), p.config.OSSKey, err)
+		return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s", endpoint, p.config.OSSKey, err)
 	}
 
 	images := imagesResponse.Images.Image
 	if len(images) > 0 && !p.config.AlicloudImageForceDelete {
 		return nil, false, false, fmt.Errorf("Duplicated image exists, please delete the existing images " +
-			"or set the 'image_force_delete' value as true ")
+			"or set the 'image_force_delete' value as true")
 	}
-
-	// Set up the OSS client
-	log.Println("Creating OSS Client")
 
 	bucket, err := p.queryOrCreateBucket(p.config.OSSBucket)
 	if err != nil {
-		return nil, false, false, fmt.Errorf("Failed to query or create bucket %s: %s ", p.config.OSSBucket, err)
+		return nil, false, false, fmt.Errorf("Failed to query or create bucket %s: %s", p.config.OSSBucket, err)
 	}
+
+	ui.Say(fmt.Sprintf("Waiting for uploading file %s to %s/%s...", source, endpoint, p.config.OSSKey))
 
 	err = bucket.PutObjectFromFile(p.config.OSSKey, source)
 	if err != nil {
-		return nil, false, false, fmt.Errorf("Failed to upload image %s: %s ", source, err)
+		return nil, false, false, fmt.Errorf("Failed to upload image %s: %s", source, err)
 	}
+
+	ui.Say(fmt.Sprintf("Image file %s has been uploaded to OSS", source))
 
 	if len(images) > 0 && p.config.AlicloudImageForceDelete {
 		deleteImageRequest := ecs.CreateDeleteImageRequest()
@@ -199,37 +201,21 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 		deleteImageRequest.ImageId = images[0].ImageId
 		_, err := ecsClient.DeleteImage(deleteImageRequest)
 		if err != nil {
-			return nil, false, false, fmt.Errorf("Delete duplicated image %s failed ", images[0].ImageName)
+			return nil, false, false, fmt.Errorf("Delete duplicated image %s failed", images[0].ImageName)
 		}
 	}
 
-	importImageRequest := ecs.CreateImportImageRequest()
-	importImageRequest.RegionId = p.config.AlicloudRegion
-	importImageRequest.ImageName = p.config.AlicloudImageName
-	importImageRequest.Description = p.config.AlicloudImageDescription
-	importImageRequest.Architecture = p.config.Architecture
-	importImageRequest.OSType = p.config.OSType
-	importImageRequest.Platform = p.config.Platform
-	importImageRequest.DiskDeviceMapping = &[]ecs.ImportImageDiskDeviceMapping{
-		{
-			DiskImageSize: p.config.Size,
-			Format:        p.config.Format,
-			OSSBucket:     p.config.OSSBucket,
-			OSSObject:     p.config.OSSKey,
-		},
-	}
-
+	importImageRequest := p.buildImportImageRequest()
 	importImageResponse, err := ecsClient.ImportImage(importImageRequest)
 	if err != nil {
 		e, ok := err.(errors.Error)
 		if !ok || e.ErrorCode() != NoSetRoleError {
-			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s ",
-				getEndPoint(p.config.OSSBucket), p.config.OSSKey, err)
+			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s", endpoint, p.config.OSSKey, err)
 		}
 
+		ui.Say("initialize ram role for importing image")
 		if err := p.prepareImportRole(); err != nil {
-			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s ",
-				getEndPoint(p.config.OSSBucket), p.config.OSSKey, err)
+			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s", endpoint, p.config.OSSKey, err)
 		}
 
 		acsResponse, err := ecsClient.WaitForExpected(&packerecs.WaitForExpectArgs{
@@ -258,8 +244,7 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 		})
 
 		if err != nil {
-			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s ",
-				getEndPoint(p.config.OSSBucket), p.config.OSSKey, err)
+			return nil, false, false, fmt.Errorf("Failed to start import from %s/%s: %s", endpoint, p.config.OSSKey, err)
 		}
 
 		importImageResponse = acsResponse.(*ecs.ImportImageResponse)
@@ -267,13 +252,14 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 
 	imageId := importImageResponse.ImageId
 
+	ui.Say(fmt.Sprintf("Waiting for importing %s/%s to alicloud...", endpoint, p.config.OSSKey))
 	_, err = ecsClient.WaitForImageStatus(p.config.AlicloudRegion, imageId, packerecs.ImageStatusAvailable, time.Duration(packerecs.ALICLOUD_DEFAULT_LONG_TIMEOUT)*time.Second)
 	if err != nil {
-		return nil, false, false, fmt.Errorf("Import image %s failed: %s ", imageId, err)
+		return nil, false, false, fmt.Errorf("Import image %s failed: %s", imageId, err)
 	}
 
 	// Add the reported Alicloud image ID to the artifact list
-	log.Printf("Importing created alicloud image ID %s in region %s Finished.", imageId, p.config.AlicloudRegion)
+	ui.Say(fmt.Sprintf("Importing created alicloud image ID %s in region %s Finished.", imageId, p.config.AlicloudRegion))
 	artifact = &packerecs.Artifact{
 		AlicloudImages: map[string]string{
 			p.config.AlicloudRegion: imageId,
@@ -283,11 +269,9 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 	}
 
 	if !p.config.SkipClean {
-		ui.Message(fmt.Sprintf("Deleting import source %s/%s/%s",
-			getEndPoint(p.config.AlicloudRegion), p.config.OSSBucket, p.config.OSSKey))
+		ui.Message(fmt.Sprintf("Deleting import source %s/%s/%s", endpoint, p.config.OSSBucket, p.config.OSSKey))
 		if err = bucket.DeleteObject(p.config.OSSKey); err != nil {
-			return nil, false, false, fmt.Errorf("Failed to delete %s/%s/%s: %s ",
-				getEndPoint(p.config.AlicloudRegion), p.config.OSSBucket, p.config.OSSKey, err)
+			return nil, false, false, fmt.Errorf("Failed to delete %s/%s/%s: %s", endpoint, p.config.OSSBucket, p.config.OSSKey, err)
 		}
 	}
 
@@ -296,7 +280,8 @@ func (p *PostProcessor) PostProcess(ctx context.Context, ui packer.Ui, artifact 
 
 func (p *PostProcessor) getOssClient() *oss.Client {
 	if p.ossClient == nil {
-		ossClient, _ := oss.New(getEndPoint(p.config.AlicloudRegion), p.config.AlicloudAccessKey,
+		log.Println("Creating OSS Client")
+		ossClient, _ := oss.New(getEndPoint(p.config.AlicloudRegion, ""), p.config.AlicloudAccessKey,
 			p.config.AlicloudSecretKey)
 		p.ossClient = ossClient
 	}
@@ -338,6 +323,7 @@ func (p *PostProcessor) prepareImportRole() error {
 	ramClient := p.getRamClient()
 
 	getRoleRequest := ram.CreateGetRoleRequest()
+	getRoleRequest.SetScheme(requests.HTTPS)
 	getRoleRequest.RoleName = DefaultImportRoleName
 	_, err := ramClient.GetRole(getRoleRequest)
 	if err == nil {
@@ -357,6 +343,7 @@ func (p *PostProcessor) prepareImportRole() error {
 		return err
 	}
 
+	time.Sleep(1 * time.Minute)
 	return nil
 }
 
@@ -364,15 +351,16 @@ func (p *PostProcessor) updateOrAttachPolicy() error {
 	ramClient := p.getRamClient()
 
 	listPoliciesForRoleRequest := ram.CreateListPoliciesForRoleRequest()
+	listPoliciesForRoleRequest.SetScheme(requests.HTTPS)
 	listPoliciesForRoleRequest.RoleName = DefaultImportRoleName
 	policyListResponse, err := p.ramClient.ListPoliciesForRole(listPoliciesForRoleRequest)
 	if err != nil {
-		return fmt.Errorf("Failed to list policies: %s ", err)
+		return fmt.Errorf("Failed to list policies: %s", err)
 	}
 
 	rolePolicyExists := false
 	for _, policy := range policyListResponse.Policies.Policy {
-		if policy.PolicyName == DefaultImportPolicyName && policy.PolicyType == PolicyType {
+		if policy.PolicyName == DefaultImportPolicyName && policy.PolicyType == PolicyTypeSystem {
 			rolePolicyExists = true
 			break
 		}
@@ -380,18 +368,20 @@ func (p *PostProcessor) updateOrAttachPolicy() error {
 
 	if rolePolicyExists {
 		updateRoleRequest := ram.CreateUpdateRoleRequest()
+		updateRoleRequest.SetScheme(requests.HTTPS)
 		updateRoleRequest.RoleName = DefaultImportRoleName
 		updateRoleRequest.NewAssumeRolePolicyDocument = DefaultImportRolePolicy
 		if _, err := ramClient.UpdateRole(updateRoleRequest); err != nil {
-			return fmt.Errorf("Failed to update role policy: %s ", err)
+			return fmt.Errorf("Failed to update role policy: %s", err)
 		}
 	} else {
 		attachPolicyToRoleRequest := ram.CreateAttachPolicyToRoleRequest()
+		attachPolicyToRoleRequest.SetScheme(requests.HTTPS)
 		attachPolicyToRoleRequest.PolicyName = DefaultImportPolicyName
-		attachPolicyToRoleRequest.PolicyType = PolicyType
+		attachPolicyToRoleRequest.PolicyType = PolicyTypeSystem
 		attachPolicyToRoleRequest.RoleName = DefaultImportRoleName
 		if _, err := ramClient.AttachPolicyToRole(attachPolicyToRoleRequest); err != nil {
-			return fmt.Errorf("Failed to attach role policy: %s ", err)
+			return fmt.Errorf("Failed to attach role policy: %s", err)
 		}
 	}
 
@@ -402,23 +392,49 @@ func (p *PostProcessor) createRoleAndAttachPolicy() error {
 	ramClient := p.getRamClient()
 
 	createRoleRequest := ram.CreateCreateRoleRequest()
+	createRoleRequest.SetScheme(requests.HTTPS)
 	createRoleRequest.RoleName = DefaultImportRoleName
 	createRoleRequest.AssumeRolePolicyDocument = DefaultImportRolePolicy
 	if _, err := ramClient.CreateRole(createRoleRequest); err != nil {
-		return fmt.Errorf("Failed to create role: %s ", err)
+		return fmt.Errorf("Failed to create role: %s", err)
 	}
 
 	attachPolicyToRoleRequest := ram.CreateAttachPolicyToRoleRequest()
+	attachPolicyToRoleRequest.SetScheme(requests.HTTPS)
 	attachPolicyToRoleRequest.PolicyName = DefaultImportPolicyName
-	attachPolicyToRoleRequest.PolicyType = PolicyType
+	attachPolicyToRoleRequest.PolicyType = PolicyTypeSystem
 	attachPolicyToRoleRequest.RoleName = DefaultImportRoleName
 	if _, err := ramClient.AttachPolicyToRole(attachPolicyToRoleRequest); err != nil {
-		return fmt.Errorf("Failed to attach policy: %s ", err)
+		return fmt.Errorf("Failed to attach policy: %s", err)
 	}
 	return nil
 }
 
-func getEndPoint(region string) string {
+func (p *PostProcessor) buildImportImageRequest() *ecs.ImportImageRequest {
+	request := ecs.CreateImportImageRequest()
+	request.RegionId = p.config.AlicloudRegion
+	request.ImageName = p.config.AlicloudImageName
+	request.Description = p.config.AlicloudImageDescription
+	request.Architecture = p.config.Architecture
+	request.OSType = p.config.OSType
+	request.Platform = p.config.Platform
+	request.DiskDeviceMapping = &[]ecs.ImportImageDiskDeviceMapping{
+		{
+			DiskImageSize: p.config.Size,
+			Format:        p.config.Format,
+			OSSBucket:     p.config.OSSBucket,
+			OSSObject:     p.config.OSSKey,
+		},
+	}
+
+	return request
+}
+
+func getEndPoint(region string, bucket string) string {
+	if bucket != "" {
+		return "https://" + bucket + "." + getOSSRegion(region) + ".aliyuncs.com"
+	}
+
 	return "https://" + getOSSRegion(region) + ".aliyuncs.com"
 }
 

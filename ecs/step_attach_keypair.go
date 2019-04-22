@@ -3,7 +3,6 @@ package ecs
 import (
 	"context"
 	"fmt"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/helper/multistep"
@@ -65,7 +64,7 @@ func (s *stepAttachKeyPair) Cleanup(state multistep.StateBag) {
 	detachKeyPairRequest.InstanceIds = fmt.Sprintf("[\"%s\"]", instance.InstanceId)
 	_, err := client.DetachKeyPair(detachKeyPairRequest)
 	if err != nil {
-		err := fmt.Errorf("Error Detaching keypair %s to instance %s : %s ", keyPairName,
+		err := fmt.Errorf("Error Detaching keypair %s to instance %s : %s", keyPairName,
 			instance.InstanceId, err)
 		state.Put("error", err)
 		ui.Error(err.Error())

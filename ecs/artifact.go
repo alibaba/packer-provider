@@ -63,13 +63,13 @@ func (a *Artifact) State(name string) interface{} {
 func (a *Artifact) Destroy() error {
 	errors := make([]error, 0)
 
-	for region, imageId := range a.AlicloudImages {
-		log.Printf("Delete alicloud image ID (%s) from region (%s)", imageId, region)
-
-		// Get alicloud image metadata
+	copyingImages := make(map[string]string, len(a.AlicloudImages))
+	sourceImage := make(map[string]*ecs.Image, 1)
+	for regionId, imageId := range a.AlicloudImages {
 		describeImagesRequest := ecs.CreateDescribeImagesRequest()
-		describeImagesRequest.RegionId = region
+		describeImagesRequest.RegionId = regionId
 		describeImagesRequest.ImageId = imageId
+		describeImagesRequest.Status = ImageStatusQueried
 		imagesResponse, err := a.Client.DescribeImages(describeImagesRequest)
 		if err != nil {
 			errors = append(errors, err)
@@ -77,47 +77,52 @@ func (a *Artifact) Destroy() error {
 
 		images := imagesResponse.Images.Image
 		if len(images) == 0 {
-			err := fmt.Errorf("Error retrieving details for alicloud image(%s), no alicloud images found ", imageId)
+			err := fmt.Errorf("Error retrieving details for alicloud image(%s), no alicloud images found", imageId)
 			errors = append(errors, err)
 			continue
 		}
 
-		//Unshared the shared account before destroy
-		describeImageSharePermissionRequest := ecs.CreateDescribeImageSharePermissionRequest()
-		describeImageSharePermissionRequest.RegionId = region
-		describeImageSharePermissionRequest.ImageId = imageId
-		imagesSharePermissionResponse, err := a.Client.DescribeImageSharePermission(describeImageSharePermissionRequest)
-		if err != nil {
+		if images[0].IsCopied {
+			copyingImages[regionId] = imageId
+		} else {
+			sourceImage[regionId] = &images[0]
+		}
+	}
+
+	for regionId, imageId := range copyingImages {
+		log.Printf("Cancel copying alicloud image (%s) from region (%s)", imageId, regionId)
+
+		errs := a.unsharedAccountsOnImages(regionId, imageId)
+		if errs != nil {
+			errors = append(errors, errs...)
+		}
+
+		cancelImageCopyRequest := ecs.CreateCancelCopyImageRequest()
+		cancelImageCopyRequest.RegionId = regionId
+		cancelImageCopyRequest.ImageId = imageId
+		if _, err := a.Client.CancelCopyImage(cancelImageCopyRequest); err != nil {
 			errors = append(errors, err)
 		}
+	}
 
-		accountsNumber := len(imagesSharePermissionResponse.Accounts.Account)
-		if accountsNumber > 0 {
-			accounts := make([]string, accountsNumber)
-			for index, account := range imagesSharePermissionResponse.Accounts.Account {
-				accounts[index] = account.AliyunId
-			}
+	for regionId, image := range sourceImage {
+		imageId := image.ImageId
+		log.Printf("Delete alicloud image (%s) from region (%s)", imageId, regionId)
 
-			modifyImageSharePermissionReq := ecs.CreateModifyImageSharePermissionRequest()
-			modifyImageSharePermissionReq.RegionId = region
-			modifyImageSharePermissionReq.ImageId = imageId
-			modifyImageSharePermissionReq.RemoveAccount = &accounts
-			_, err := a.Client.ModifyImageSharePermission(modifyImageSharePermissionReq)
-			if err != nil {
-				errors = append(errors, err)
-			}
+		errs := a.unsharedAccountsOnImages(regionId, imageId)
+		if errs != nil {
+			errors = append(errors, errs...)
 		}
 
-		// Delete alicloud images
 		deleteImageRequest := ecs.CreateDeleteImageRequest()
+		deleteImageRequest.RegionId = regionId
 		deleteImageRequest.ImageId = imageId
-		deleteImageRequest.RegionId = region
 		if _, err := a.Client.DeleteImage(deleteImageRequest); err != nil {
 			errors = append(errors, err)
 		}
 
 		//Delete the snapshot of this images
-		for _, diskDevices := range images[0].DiskDeviceMappings.DiskDeviceMapping {
+		for _, diskDevices := range image.DiskDeviceMappings.DiskDeviceMapping {
 			deleteSnapshotRequest := ecs.CreateDeleteSnapshotRequest()
 			deleteSnapshotRequest.SnapshotId = diskDevices.SnapshotId
 			_, err := a.Client.DeleteSnapshot(deleteSnapshotRequest)
@@ -136,6 +141,38 @@ func (a *Artifact) Destroy() error {
 	}
 
 	return nil
+}
+
+func (a *Artifact) unsharedAccountsOnImages(regionId string, imageId string) []error {
+	var errors []error
+
+	describeImageShareRequest := ecs.CreateDescribeImageSharePermissionRequest()
+	describeImageShareRequest.RegionId = regionId
+	describeImageShareRequest.ImageId = imageId
+	imageShareResponse, err := a.Client.DescribeImageSharePermission(describeImageShareRequest)
+	if err != nil {
+		errors = append(errors, err)
+		return errors
+	}
+
+	accountsNumber := len(imageShareResponse.Accounts.Account)
+	if accountsNumber > 0 {
+		accounts := make([]string, accountsNumber)
+		for index, account := range imageShareResponse.Accounts.Account {
+			accounts[index] = account.AliyunId
+		}
+
+		modifyImageShareRequest := ecs.CreateModifyImageSharePermissionRequest()
+		modifyImageShareRequest.RegionId = regionId
+		modifyImageShareRequest.ImageId = imageId
+		modifyImageShareRequest.RemoveAccount = &accounts
+		_, err := a.Client.ModifyImageSharePermission(modifyImageShareRequest)
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	return errors
 }
 
 func (a *Artifact) stateAtlasMetadata() interface{} {

@@ -53,15 +53,15 @@ func (c *RunConfig) Prepare(ctx *interpolate.Context) []error {
 	}
 
 	if strings.TrimSpace(c.AlicloudSourceImage) != c.AlicloudSourceImage {
-		errs = append(errs, errors.New("The source_image can't include spaces "))
+		errs = append(errs, errors.New("The source_image can't include spaces"))
 	}
 
 	if c.InstanceType == "" {
-		errs = append(errs, errors.New("An alicloud_instance_type must be specified "))
+		errs = append(errs, errors.New("An alicloud_instance_type must be specified"))
 	}
 
 	if c.UserData != "" && c.UserDataFile != "" {
-		errs = append(errs, fmt.Errorf("Only one of user_data or user_data_file can be specified. "))
+		errs = append(errs, fmt.Errorf("Only one of user_data or user_data_file can be specified."))
 	} else if c.UserDataFile != "" {
 		if _, err := os.Stat(c.UserDataFile); err != nil {
 			errs = append(errs, fmt.Errorf("user_data_file not found: %s", c.UserDataFile))

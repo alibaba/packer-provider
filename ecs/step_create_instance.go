@@ -2,15 +2,16 @@ package ecs
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strconv"
+
+	"github.com/hashicorp/packer/common/uuid"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/hashicorp/packer/common/uuid"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
 )
@@ -181,14 +182,20 @@ func (s *stepCreateAlicloudInstance) buildCreateInstanceRequest(state multistep.
 
 func (s *stepCreateAlicloudInstance) getUserData(state multistep.StateBag) (string, error) {
 	userData := s.UserData
+
 	if s.UserDataFile != "" {
 		data, err := ioutil.ReadFile(s.UserDataFile)
 		if err != nil {
 			return "", err
 		}
+
 		userData = string(data)
 	}
-	log.Printf(userData)
+
+	if userData != "" {
+		userData = base64.StdEncoding.EncodeToString([]byte(userData))
+	}
+
 	return userData, nil
 
 }

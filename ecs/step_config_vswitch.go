@@ -3,7 +3,6 @@ package ecs
 import (
 	"context"
 	"fmt"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/common/uuid"
@@ -56,7 +55,7 @@ func (s *stepConfigAlicloudVSwitch) Run(ctx context.Context, state multistep.Sta
 		}
 
 		s.isCreate = false
-		return halt(state, fmt.Errorf("The specified vswitch {%s} doesn't exist. ", s.VSwitchId), "")
+		return halt(state, fmt.Errorf("The specified vswitch {%s} doesn't exist.", s.VSwitchId), "")
 	}
 
 	if s.ZoneId == "" {

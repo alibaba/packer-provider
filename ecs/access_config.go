@@ -2,12 +2,11 @@ package ecs
 
 import (
 	"fmt"
-	"os"
-	"time"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/template/interpolate"
 	"github.com/hashicorp/packer/version"
+	"os"
+	"time"
 )
 
 // Config of alicloud
@@ -57,7 +56,7 @@ func (c *AlicloudAccessConfig) Prepare(ctx *interpolate.Context) []error {
 	}
 
 	if c.AlicloudRegion == "" {
-		errs = append(errs, fmt.Errorf("region option or ALICLOUD_REGION must be provided in template file or environment variables. "))
+		errs = append(errs, fmt.Errorf("region option or ALICLOUD_REGION must be provided in template file or environment variables."))
 	}
 
 	if len(errs) > 0 {
@@ -75,7 +74,7 @@ func (c *AlicloudAccessConfig) Config() error {
 		c.AlicloudSecretKey = os.Getenv("ALICLOUD_SECRET_KEY")
 	}
 	if c.AlicloudAccessKey == "" || c.AlicloudSecretKey == "" {
-		return fmt.Errorf("ALICLOUD_ACCESS_KEY and ALICLOUD_SECRET_KEY must be set in template file or environment variables. ")
+		return fmt.Errorf("ALICLOUD_ACCESS_KEY and ALICLOUD_SECRET_KEY must be set in template file or environment variables.")
 	}
 	return nil
 
@@ -94,7 +93,7 @@ func (c *AlicloudAccessConfig) ValidateRegion(region string) error {
 		}
 	}
 
-	return fmt.Errorf("Not a valid alicloud region: %s ", region)
+	return fmt.Errorf("Not a valid alicloud region: %s", region)
 }
 
 func (c *AlicloudAccessConfig) getSupportedRegions() ([]string, error) {
@@ -104,7 +103,6 @@ func (c *AlicloudAccessConfig) getSupportedRegions() ([]string, error) {
 	}
 
 	regionsRequest := ecs.CreateDescribeRegionsRequest()
-
 	regionsResponse, err := client.DescribeRegions(regionsRequest)
 	if err != nil {
 		return nil, err

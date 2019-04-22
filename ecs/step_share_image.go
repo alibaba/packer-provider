@@ -19,14 +19,14 @@ func (s *stepShareAlicloudImage) Run(ctx context.Context, state multistep.StateB
 	client := state.Get("client").(*ClientWrapper)
 	alicloudImages := state.Get("alicloudimages").(map[string]string)
 
-	for copiedRegion, copiedImageId := range alicloudImages {
-		modifyImageSharePermissionReq := ecs.CreateModifyImageSharePermissionRequest()
-		modifyImageSharePermissionReq.RegionId = copiedRegion
-		modifyImageSharePermissionReq.ImageId = copiedImageId
-		modifyImageSharePermissionReq.AddAccount = &s.AlicloudImageShareAccounts
-		modifyImageSharePermissionReq.RemoveAccount = &s.AlicloudImageUNShareAccounts
+	for regionId, imageId := range alicloudImages {
+		modifyImageShareRequest := ecs.CreateModifyImageSharePermissionRequest()
+		modifyImageShareRequest.RegionId = regionId
+		modifyImageShareRequest.ImageId = imageId
+		modifyImageShareRequest.AddAccount = &s.AlicloudImageShareAccounts
+		modifyImageShareRequest.RemoveAccount = &s.AlicloudImageUNShareAccounts
 
-		if _, err := client.ModifyImageSharePermission(modifyImageSharePermissionReq); err != nil {
+		if _, err := client.ModifyImageSharePermission(modifyImageShareRequest); err != nil {
 			return halt(state, err, "Failed modifying image share permissions")
 		}
 	}
@@ -47,13 +47,13 @@ func (s *stepShareAlicloudImage) Cleanup(state multistep.StateBag) {
 
 	ui.Say("Restoring image share permission because cancellations or error...")
 
-	for copiedRegion, copiedImageId := range alicloudImages {
-		modifyImageSharePermissionRequest := ecs.CreateModifyImageSharePermissionRequest()
-		modifyImageSharePermissionRequest.RegionId = copiedRegion
-		modifyImageSharePermissionRequest.ImageId = copiedImageId
-		modifyImageSharePermissionRequest.AddAccount = &s.AlicloudImageUNShareAccounts
-		modifyImageSharePermissionRequest.RemoveAccount = &s.AlicloudImageShareAccounts
-		if _, err := client.ModifyImageSharePermission(modifyImageSharePermissionRequest); err != nil {
+	for regionId, imageId := range alicloudImages {
+		modifyImageShareRequest := ecs.CreateModifyImageSharePermissionRequest()
+		modifyImageShareRequest.RegionId = regionId
+		modifyImageShareRequest.ImageId = imageId
+		modifyImageShareRequest.AddAccount = &s.AlicloudImageUNShareAccounts
+		modifyImageShareRequest.RemoveAccount = &s.AlicloudImageShareAccounts
+		if _, err := client.ModifyImageSharePermission(modifyImageShareRequest); err != nil {
 			ui.Say(fmt.Sprintf("Restoring image share permission failed: %s", err))
 		}
 	}

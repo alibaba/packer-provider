@@ -4,7 +4,6 @@ import (
 	"context"
 	errorsNew "errors"
 	"fmt"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/common/uuid"

@@ -3,10 +3,11 @@ package ecs
 import (
 	"context"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
+	"github.com/hashicorp/packer/common/uuid"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/hashicorp/packer/common/uuid"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
 )
@@ -68,7 +69,12 @@ func (s *stepConfigAlicloudEIP) Run(ctx context.Context, state multistep.StateBa
 	associateEipAddressRequest.AllocationId = allocateId
 	associateEipAddressRequest.InstanceId = instance.InstanceId
 	if _, err := client.AssociateEipAddress(associateEipAddressRequest); err != nil {
-		return halt(state, err, "Error associating eip")
+		e, ok := err.(errors.Error)
+		if !ok || e.ErrorCode() != "TaskConflict" {
+			return halt(state, err, "Error associating eip")
+		}
+
+		ui.Error(fmt.Sprintf("Error associate eip: %s", err))
 	}
 
 	err = s.waitForEipStatus(client, instance.RegionId, s.allocatedId, EipStatusInUse)
@@ -95,17 +101,17 @@ func (s *stepConfigAlicloudEIP) Cleanup(state multistep.StateBag) {
 	unassociateEipAddressRequest.AllocationId = s.allocatedId
 	unassociateEipAddressRequest.InstanceId = instance.InstanceId
 	if _, err := client.UnassociateEipAddress(unassociateEipAddressRequest); err != nil {
-		ui.Say(fmt.Sprintf("Failed to unassociate eip."))
+		ui.Say(fmt.Sprintf("Failed to unassociate eip: %s", err))
 	}
 
 	if err := s.waitForEipStatus(client, instance.RegionId, s.allocatedId, EipStatusAvailable); err != nil {
-		ui.Say(fmt.Sprintf("Timeout while unassociating eip."))
+		ui.Say(fmt.Sprintf("Timeout while unassociating eip: %s", err))
 	}
 
 	releaseEipAddressRequest := ecs.CreateReleaseEipAddressRequest()
 	releaseEipAddressRequest.AllocationId = s.allocatedId
 	if _, err := client.ReleaseEipAddress(releaseEipAddressRequest); err != nil {
-		ui.Say(fmt.Sprintf("Failed to release eip."))
+		ui.Say(fmt.Sprintf("Failed to release eip: %s", err))
 	}
 }
 

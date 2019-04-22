@@ -15,21 +15,12 @@ type stepPreValidate struct {
 }
 
 func (s *stepPreValidate) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
-	ui := state.Get("ui").(packer.Ui)
-	var errs *packer.MultiError
-
 	if err := s.validateRegions(state); err != nil {
-		errs = packer.MultiErrorAppend(errs, err)
+		return halt(state, err, "")
 	}
 
 	if err := s.validateDestImageName(state); err != nil {
-		errs = packer.MultiErrorAppend(errs, err)
-	}
-
-	if errs != nil && len(errs.Errors) > 0 {
-		state.Put("error", errs)
-		ui.Error(errs.Error())
-		return multistep.ActionHalt
+		return halt(state, err, "")
 	}
 
 	return multistep.ActionContinue
@@ -82,12 +73,12 @@ func (s *stepPreValidate) validateDestImageName(state multistep.StateBag) error 
 
 	imagesResponse, err := client.DescribeImages(describeImagesRequest)
 	if err != nil {
-		return fmt.Errorf("Error querying alicloud image: %s ", err)
+		return fmt.Errorf("Error querying alicloud image: %s", err)
 	}
 
 	images := imagesResponse.Images.Image
 	if len(images) > 0 {
-		return fmt.Errorf("Error: Image Name: '%s' is used by an existing alicloud image: %s ", images[0].ImageName, images[0].ImageId)
+		return fmt.Errorf("Error: Image Name: '%s' is used by an existing alicloud image: %s", images[0].ImageName, images[0].ImageId)
 	}
 
 	return nil

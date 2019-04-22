@@ -78,7 +78,7 @@ func (s *stepDeleteAlicloudImageSnapshots) deleteImageAndSnapshots(state multist
 		deleteImageRequest.RegionId = region
 		deleteImageRequest.ImageId = image.ImageId
 		if _, err := client.DeleteImage(deleteImageRequest); err != nil {
-			err := fmt.Errorf("Failed to delete image: %s ", err)
+			err := fmt.Errorf("Failed to delete image: %s", err)
 			return err
 		}
 
@@ -87,7 +87,7 @@ func (s *stepDeleteAlicloudImageSnapshots) deleteImageAndSnapshots(state multist
 				deleteSnapshotRequest := ecs.CreateDeleteSnapshotRequest()
 				deleteSnapshotRequest.SnapshotId = diskDevice.SnapshotId
 				if _, err := client.DeleteSnapshot(deleteSnapshotRequest); err != nil {
-					err := fmt.Errorf("Deleting ECS snapshot failed: %s ", err)
+					err := fmt.Errorf("Deleting ECS snapshot failed: %s", err)
 					return err
 				}
 			}

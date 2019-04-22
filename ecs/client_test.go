@@ -2,10 +2,9 @@ package ecs
 
 import (
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"testing"
 	"time"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 )
 
 func TestWaitForExpectedExceedRetryTimes(t *testing.T) {
@@ -15,7 +14,7 @@ func TestWaitForExpectedExceedRetryTimes(t *testing.T) {
 	waitDone := make(chan bool, 1)
 
 	go func() {
-		c.WaitForExpected(&WaitForExpectArgs{
+		_, _ = c.WaitForExpected(&WaitForExpectArgs{
 			RequestFunc: func() (responses.AcsResponse, error) {
 				iter++
 				return nil, fmt.Errorf("test: let iteration %d failed", iter)
@@ -52,7 +51,7 @@ func TestWaitForExpectedExceedRetryTimeout(t *testing.T) {
 	waitDone := make(chan bool, 1)
 
 	go func() {
-		c.WaitForExpected(&WaitForExpectArgs{
+		_, _ = c.WaitForExpected(&WaitForExpectArgs{
 			RequestFunc: func() (responses.AcsResponse, error) {
 				iter++
 				return nil, fmt.Errorf("test: let iteration %d failed", iter)

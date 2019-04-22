@@ -3,7 +3,6 @@ package ecs
 import (
 	"context"
 	"fmt"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/common/uuid"
@@ -57,7 +56,7 @@ func (s *stepConfigAlicloudSecurityGroup) Run(ctx context.Context, state multist
 		}
 
 		s.isCreate = false
-		err = fmt.Errorf("The specified security group {%s} doesn't exist. ", s.SecurityGroupId)
+		err = fmt.Errorf("The specified security group {%s} doesn't exist.", s.SecurityGroupId)
 		return halt(state, err, "")
 	}
 

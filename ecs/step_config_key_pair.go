@@ -76,21 +76,21 @@ func (s *stepConfigAlicloudKeyPair) Run(ctx context.Context, state multistep.Sta
 		ui.Message(fmt.Sprintf("Saving key for debug purposes: %s", s.DebugKeyPath))
 		f, err := os.Create(s.DebugKeyPath)
 		if err != nil {
-			state.Put("error", fmt.Errorf("Error saving debug key: %s ", err))
+			state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
 			return multistep.ActionHalt
 		}
 		defer f.Close()
 
 		// Write the key out
 		if _, err := f.Write([]byte(keyResp.PrivateKeyBody)); err != nil {
-			state.Put("error", fmt.Errorf("Error saving debug key: %s ", err))
+			state.Put("error", fmt.Errorf("Error saving debug key: %s", err))
 			return multistep.ActionHalt
 		}
 
 		// Chmod it so that it is SSH ready
 		if runtime.GOOS != "windows" {
 			if err := f.Chmod(0600); err != nil {
-				state.Put("error", fmt.Errorf("Error setting permissions of debug key: %s ", err))
+				state.Put("error", fmt.Errorf("Error setting permissions of debug key: %s", err))
 				return multistep.ActionHalt
 			}
 		}

@@ -98,17 +98,14 @@ func TestBuilderPrepare_InvalidKey(t *testing.T) {
 func TestBuilderPrepare_Devices(t *testing.T) {
 	var b Builder
 	config := testBuilderConfig()
-
 	config["system_disk_mapping"] = map[string]interface{}{
 		"disk_category":    "cloud",
 		"disk_description": "system disk",
 		"disk_name":        "system_disk",
 		"disk_size":        60,
 	}
-
 	config["image_disk_mappings"] = []map[string]interface{}{
 		{
-
 			"disk_category":             "cloud_efficiency",
 			"disk_name":                 "data_disk1",
 			"disk_size":                 100,
@@ -122,7 +119,6 @@ func TestBuilderPrepare_Devices(t *testing.T) {
 			"disk_device": "/dev/xvdc",
 		},
 	}
-
 	warnings, err := b.Prepare(config)
 	if len(warnings) > 0 {
 		t.Fatalf("bad: %#v", warnings)
@@ -130,7 +126,6 @@ func TestBuilderPrepare_Devices(t *testing.T) {
 	if err != nil {
 		t.Fatalf("should not have error: %s", err)
 	}
-
 	if !reflect.DeepEqual(b.config.ECSSystemDiskMapping, AlicloudDiskDevice{
 		DiskCategory: "cloud",
 		Description:  "system disk",
@@ -139,7 +134,6 @@ func TestBuilderPrepare_Devices(t *testing.T) {
 	}) {
 		t.Fatalf("system disk is not set properly, actual: %#v", b.config.ECSSystemDiskMapping)
 	}
-
 	if !reflect.DeepEqual(b.config.ECSImagesDiskMappings, []AlicloudDiskDevice{
 		{
 			DiskCategory:       "cloud_efficiency",

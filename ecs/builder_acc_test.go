@@ -211,7 +211,7 @@ const testBuilderAccWindows = `
 		"winrm_username": "Administrator",
 		"winrm_password": "Test1234",
 		"image_name": "packer-test-windows_{{timestamp}}",
-		"user_data_file": "../../../examples/alicloud/basic/winrm_enable_userdata.ps1"
+		"user_data_file": "../examples/alicloud/basic/winrm_enable_userdata.ps1"
 	}]
 }`
 

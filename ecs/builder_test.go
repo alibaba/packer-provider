@@ -112,6 +112,7 @@ func TestBuilderPrepare_Devices(t *testing.T) {
 			"disk_snapshot_id":          "s-1",
 			"disk_description":          "data disk1",
 			"disk_device":               "/dev/xvdb",
+			"disk_encrypted":            false,
 			"disk_delete_with_instance": false,
 		},
 		{
@@ -142,6 +143,7 @@ func TestBuilderPrepare_Devices(t *testing.T) {
 			SnapshotId:         "s-1",
 			Description:        "data disk1",
 			Device:             "/dev/xvdb",
+			DiskEncrypted:      false,
 			DeleteWithInstance: false,
 		},
 		{

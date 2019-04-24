@@ -172,6 +172,7 @@ func (s *stepCreateAlicloudInstance) buildCreateInstanceRequest(state multistep.
 		dataDisk.Description = imageDisk.Description
 		dataDisk.DeleteWithInstance = strconv.FormatBool(imageDisk.DeleteWithInstance)
 		dataDisk.Device = imageDisk.Device
+		dataDisk.Encrypted = strconv.FormatBool(imageDisk.DiskEncrypted)
 
 		dataDisks = append(dataDisks, dataDisk)
 	}

@@ -192,6 +192,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 			AlicloudImageDestinationRegions: b.config.AlicloudImageDestinationRegions,
 			AlicloudImageDestinationNames:   b.config.AlicloudImageDestinationNames,
 			RegionId:                        b.config.AlicloudRegion,
+			ImageCopyEncrypted:              b.config.ImageCopyEncrypted,
 		},
 		&stepShareAlicloudImage{
 			AlicloudImageShareAccounts:   b.config.AlicloudImageShareAccounts,

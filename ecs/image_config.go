@@ -14,6 +14,7 @@ type AlicloudDiskDevice struct {
 	DiskSize           int    `mapstructure:"disk_size"`
 	SnapshotId         string `mapstructure:"disk_snapshot_id"`
 	Description        string `mapstructure:"disk_description"`
+	DiskEncrypted      bool   `mapstructure:"disk_encrypted"`
 	DeleteWithInstance bool   `mapstructure:"disk_delete_with_instance"`
 	Device             string `mapstructure:"disk_device"`
 }
@@ -31,6 +32,7 @@ type AlicloudImageConfig struct {
 	AlicloudImageUNShareAccounts      []string          `mapstructure:"image_unshare_account"`
 	AlicloudImageDestinationRegions   []string          `mapstructure:"image_copy_regions"`
 	AlicloudImageDestinationNames     []string          `mapstructure:"image_copy_names"`
+	ImageCopyEncrypted                bool              `mapstructure:"image_copy_encrypted"`
 	AlicloudImageForceDelete          bool              `mapstructure:"image_force_delete"`
 	AlicloudImageForceDeleteSnapshots bool              `mapstructure:"image_force_delete_snapshots"`
 	AlicloudImageForceDeleteInstances bool              `mapstructure:"image_force_delete_instances"`

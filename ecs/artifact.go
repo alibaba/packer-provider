@@ -83,11 +83,7 @@ func (a *Artifact) Destroy() error {
 		}
 
 		if images[0].IsCopied {
-			if images[0].Progress == "100%" {
-				sourceImage[regionId] = &images[0]
-			} else {
-				copyingImages[regionId] = imageId
-			}
+			copyingImages[regionId] = imageId
 		} else {
 			sourceImage[regionId] = &images[0]
 		}

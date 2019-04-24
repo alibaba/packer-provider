@@ -3,10 +3,6 @@ package ecs
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"time"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/helper/multistep"
@@ -17,25 +13,22 @@ type stepRegionCopyAlicloudImage struct {
 	AlicloudImageDestinationRegions []string
 	AlicloudImageDestinationNames   []string
 	RegionId                        string
-	ImageCopyEncrypted              bool
 }
 
 func (s *stepRegionCopyAlicloudImage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
-	if len(s.AlicloudImageDestinationRegions) == 0 && s.ImageCopyEncrypted == false {
+	if len(s.AlicloudImageDestinationRegions) == 0 {
 		return multistep.ActionContinue
-	} else {
-		s.AlicloudImageDestinationRegions = append(s.AlicloudImageDestinationRegions, s.RegionId)
 	}
 
 	client := state.Get("client").(*ClientWrapper)
 	imageId := state.Get("alicloudimage").(string)
 	alicloudImages := state.Get("alicloudimages").(map[string]string)
-	ui := state.Get("ui").(packer.Ui)
 
 	numberOfName := len(s.AlicloudImageDestinationNames)
-
-	ui.Say("Coping image...")
 	for index, destinationRegion := range s.AlicloudImageDestinationRegions {
+		if destinationRegion == s.RegionId {
+			continue
+		}
 
 		ecsImageName := ""
 		if numberOfName > 0 && index < numberOfName {
@@ -45,7 +38,6 @@ func (s *stepRegionCopyAlicloudImage) Run(ctx context.Context, state multistep.S
 		copyImageRequest := ecs.CreateCopyImageRequest()
 		copyImageRequest.RegionId = s.RegionId
 		copyImageRequest.ImageId = imageId
-		copyImageRequest.Encrypted = requests.Boolean(strconv.FormatBool(s.ImageCopyEncrypted))
 		copyImageRequest.DestinationRegionId = destinationRegion
 		copyImageRequest.DestinationImageName = ecsImageName
 
@@ -54,14 +46,7 @@ func (s *stepRegionCopyAlicloudImage) Run(ctx context.Context, state multistep.S
 			return halt(state, err, "Error copying images")
 		}
 
-		if s.ImageCopyEncrypted == true {
-			if _, err := client.WaitForImageStatus(destinationRegion, image.ImageId, ImageStatusAvailable, time.Duration(ALICLOUD_DEFAULT_LONG_TIMEOUT)*time.Second); err != nil {
-				return halt(state, err, "error waiting copy images")
-			}
-		}
-
 		alicloudImages[destinationRegion] = image.ImageId
-		ui.Message(fmt.Sprintf("Copy image from %s(%s) to %s(%s)", s.RegionId, imageId, destinationRegion, image.ImageId))
 	}
 	return multistep.ActionContinue
 }

@@ -3,15 +3,12 @@ package ecs
 import (
 	"context"
 	"fmt"
-	"time"
-
-	"github.com/hashicorp/packer/common/random"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/common/uuid"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
+	"time"
 )
 
 type stepCreateAlicloudImage struct {
@@ -30,12 +27,7 @@ func (s *stepCreateAlicloudImage) Run(ctx context.Context, state multistep.State
 	ui := state.Get("ui").(packer.Ui)
 
 	// Create the alicloud image
-	temporaryImage := config.AlicloudImageName
-	if config.ImageCopyEncrypted != false {
-		temporaryImage = random.AlphaNum(7)
-	}
-
-	ui.Say(fmt.Sprintf("Creating image: %s", temporaryImage))
+	ui.Say(fmt.Sprintf("Creating image: %s", config.AlicloudImageName))
 
 	createImageRequest := s.buildCreateImageRequest(state)
 	createImageResponse, err := client.WaitForExpected(&WaitForExpectArgs{
@@ -91,19 +83,17 @@ func (s *stepCreateAlicloudImage) Cleanup(state multistep.StateBag) {
 		return
 	}
 
-	config := state.Get("config").(*Config)
-
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
-	encryptedSet := config.ImageCopyEncrypted != false
-	if !cancelled && !halted && !encryptedSet {
+	if !cancelled && !halted {
 		return
 	}
 
 	client := state.Get("client").(*ClientWrapper)
 	ui := state.Get("ui").(packer.Ui)
+	config := state.Get("config").(*Config)
 
-	ui.Say("Deleting the image because of cancellation or error or it was temporary (image_copy_encrypted was set)...")
+	ui.Say("Deleting the image because of cancellation or error...")
 
 	deleteImageRequest := ecs.CreateDeleteImageRequest()
 	deleteImageRequest.RegionId = config.AlicloudRegion

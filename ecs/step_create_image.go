@@ -109,6 +109,16 @@ func (s *stepCreateAlicloudImage) Cleanup(state multistep.StateBag) {
 		ui.Error(fmt.Sprintf("Error deleting image, it may still be around: %s", err))
 		return
 	}
+
+	//Delete the snapshot of this image
+	for _, diskDevices := range s.image.DiskDeviceMappings.DiskDeviceMapping {
+		deleteSnapshotRequest := ecs.CreateDeleteSnapshotRequest()
+		deleteSnapshotRequest.SnapshotId = diskDevices.SnapshotId
+		if _, err := client.DeleteSnapshot(deleteSnapshotRequest); err != nil {
+			ui.Error(fmt.Sprintf("Error deleting snapshot, it may still be around: %s", err))
+			return
+		}
+	}
 }
 
 func (s *stepCreateAlicloudImage) buildCreateImageRequest(state multistep.StateBag, imageName string) *ecs.CreateImageRequest {

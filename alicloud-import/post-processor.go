@@ -3,11 +3,12 @@ package alicloudimport
 import (
 	"context"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 
 	packerecs "github.com/alibaba/packer-provider/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"

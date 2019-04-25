@@ -2,7 +2,7 @@ package main
 
 //Register alicloud packer builder plugin
 import (
-	"github.com/alibaba/packer-provider/alicloud-import"
+	alicloudimport "github.com/alibaba/packer-provider/alicloud-import"
 	"github.com/alibaba/packer-provider/ecs"
 	"github.com/hashicorp/packer/packer/plugin"
 )

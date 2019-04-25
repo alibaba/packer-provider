@@ -97,9 +97,9 @@ func (s *stepCreateAlicloudImage) Cleanup(state multistep.StateBag) {
 	ui := state.Get("ui").(packer.Ui)
 
 	if !cancelled && !halted && encryptedSet {
-		ui.Say(fmt.Sprintf("Deleting temporary image %s(%s) after finishing encryption...", s.image.ImageId, s.image.ImageName))
+		ui.Say(fmt.Sprintf("Deleting temporary image %s(%s) and related snapshots after finishing encryption...", s.image.ImageId, s.image.ImageName))
 	} else {
-		ui.Say("Deleting the image because of cancellation or error...")
+		ui.Say("Deleting the image and related snapshots because of cancellation or error...")
 	}
 
 	deleteImageRequest := ecs.CreateDeleteImageRequest()

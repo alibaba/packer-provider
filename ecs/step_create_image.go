@@ -31,7 +31,7 @@ func (s *stepCreateAlicloudImage) Run(ctx context.Context, state multistep.State
 
 	tempImageName := config.AlicloudImageName
 	if config.ImageEncrypted != nil && *config.ImageEncrypted {
-		tempImageName = random.AlphaNum(7)
+		tempImageName = fmt.Sprintf("packer_%s", random.AlphaNum(7))
 		ui.Say(fmt.Sprintf("Creating temporary image for encryption: %s", tempImageName))
 	} else {
 		ui.Say(fmt.Sprintf("Creating image: %s", tempImageName))
@@ -96,8 +96,8 @@ func (s *stepCreateAlicloudImage) Cleanup(state multistep.StateBag) {
 	client := state.Get("client").(*ClientWrapper)
 	ui := state.Get("ui").(packer.Ui)
 
-	if encryptedSet {
-		ui.Say("Deleting temporary image after finishing encryption or because of cancellation or error...")
+	if !cancelled && !halted && encryptedSet {
+		ui.Say(fmt.Sprintf("Deleting temporary image %s(%s) after finishing encryption...", s.image.ImageId, s.image.ImageName))
 	} else {
 		ui.Say("Deleting the image because of cancellation or error...")
 	}

@@ -75,27 +75,31 @@ func (s *stepRegionCopyAlicloudImage) Run(ctx context.Context, state multistep.S
 }
 
 func (s *stepRegionCopyAlicloudImage) Cleanup(state multistep.StateBag) {
-	config := state.Get("config").(*Config)
-
 	_, cancelled := state.GetOk(multistep.StateCancelled)
 	_, halted := state.GetOk(multistep.StateHalted)
 
-	if cancelled || halted {
-		ui := state.Get("ui").(packer.Ui)
-		client := state.Get("client").(*ClientWrapper)
-		alicloudImages := state.Get("alicloudimages").(map[string]string)
-		ui.Say(fmt.Sprintf("Stopping copy image because cancellation or error..."))
-		for copiedRegionId, copiedImageId := range alicloudImages {
-			if copiedRegionId == s.RegionId && config.ImageEncrypted == nil {
-				continue
-			}
+	if !cancelled && !halted {
+		return
+	}
 
-			cancelCopyImageRequest := ecs.CreateCancelCopyImageRequest()
-			cancelCopyImageRequest.RegionId = copiedRegionId
-			cancelCopyImageRequest.ImageId = copiedImageId
-			if _, err := client.CancelCopyImage(cancelCopyImageRequest); err != nil {
-				ui.Error(fmt.Sprintf("Error cancelling copy image: %v", err))
-			}
+	ui := state.Get("ui").(packer.Ui)
+	ui.Say(fmt.Sprintf("Stopping copy image because cancellation or error..."))
+
+	client := state.Get("client").(*ClientWrapper)
+	alicloudImages := state.Get("alicloudimages").(map[string]string)
+	srcImageId := state.Get("alicloudimage").(string)
+
+	for copiedRegionId, copiedImageId := range alicloudImages {
+		if copiedImageId == srcImageId {
+			continue
+		}
+
+		cancelCopyImageRequest := ecs.CreateCancelCopyImageRequest()
+		cancelCopyImageRequest.RegionId = copiedRegionId
+		cancelCopyImageRequest.ImageId = copiedImageId
+		if _, err := client.CancelCopyImage(cancelCopyImageRequest); err != nil {
+
+			ui.Error(fmt.Sprintf("Error cancelling copy image: %v", err))
 		}
 	}
 }

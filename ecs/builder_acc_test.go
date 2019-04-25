@@ -618,7 +618,7 @@ func TestBuilderAcc_dataDiskEncrypted(t *testing.T) {
 		},
 		Builder:  &Builder{},
 		Template: testBuilderAccDataDiskEncrypted,
-		Check:    checkImageDiskEncrypted(),
+		Check:    checkDataDiskEncrypted(),
 	})
 }
 
@@ -653,7 +653,7 @@ const testBuilderAccDataDiskEncrypted = `
 	}]
 }`
 
-func checkImageDiskEncrypted() builderT.TestCheckFunc {
+func checkDataDiskEncrypted() builderT.TestCheckFunc {
 	return func(artifacts []packer.Artifact) error {
 		if len(artifacts) > 1 {
 			return fmt.Errorf("more than 1 artifact")
@@ -685,9 +685,7 @@ func checkImageDiskEncrypted() builderT.TestCheckFunc {
 
 		var snapshotIds []string
 		for _, mapping := range image.DiskDeviceMappings.DiskDeviceMapping {
-			if mapping.Type == DiskTypeData {
-				snapshotIds = append(snapshotIds, mapping.SnapshotId)
-			}
+			snapshotIds = append(snapshotIds, mapping.SnapshotId)
 		}
 
 		data, _ := json.Marshal(snapshotIds)
@@ -699,26 +697,36 @@ func checkImageDiskEncrypted() builderT.TestCheckFunc {
 		if err != nil {
 			return fmt.Errorf("describe data snapshots failed due to %s", err)
 		}
-		if len(describeSnapshotsResponse.Snapshots.Snapshot) != 3 {
+		if len(describeSnapshotsResponse.Snapshots.Snapshot) != 4 {
 			return fmt.Errorf("expect %d data snapshots but got %d", len(snapshotIds), len(describeSnapshotsResponse.Snapshots.Snapshot))
 		}
 		snapshots := describeSnapshotsResponse.Snapshots.Snapshot
 		for _, snapshot := range snapshots {
-			if snapshot.Encrypted == true && snapshot.SourceDiskSize == "25" {
+			if snapshot.SourceDiskType == DiskTypeSystem {
+				if snapshot.Encrypted != false {
+					return fmt.Errorf("the system snapshot expected to be non-encrypted but got true")
+				}
+
 				continue
-			} else if snapshot.Encrypted == false && snapshot.SourceDiskSize == "35" {
-				continue
-			} else if snapshot.Encrypted == false && snapshot.SourceDiskSize == "45" {
-				continue
-			} else {
-				return fmt.Errorf("error snapshots not meeting expectations. ")
+			}
+
+			if snapshot.SourceDiskSize == "25" && snapshot.Encrypted != true {
+				return fmt.Errorf("the first snapshot expected to be encrypted but got false")
+			}
+
+			if snapshot.SourceDiskSize == "35" && snapshot.Encrypted != false {
+				return fmt.Errorf("the second snapshot expected to be non-encrypted but got true")
+			}
+
+			if snapshot.SourceDiskSize == "45" && snapshot.Encrypted != false {
+				return fmt.Errorf("the third snapshot expected to be non-encrypted but got true")
 			}
 		}
 		return nil
 	}
 }
 
-func TestBuilderAcc_sysDiskEncrypted(t *testing.T) {
+func TestBuilderAcc_systemDiskEncrypted(t *testing.T) {
 	t.Parallel()
 	builderT.Test(t, builderT.TestCase{
 		PreCheck: func() {
@@ -726,7 +734,7 @@ func TestBuilderAcc_sysDiskEncrypted(t *testing.T) {
 		},
 		Builder:  &Builder{},
 		Template: testBuilderAccSystemDiskEncrypted,
-		Check:    checkCopyImageEncrypted(),
+		Check:    checkSystemDiskEncrypted(),
 	})
 }
 
@@ -744,7 +752,7 @@ const testBuilderAccSystemDiskEncrypted = `
 	}]
 }`
 
-func checkCopyImageEncrypted() builderT.TestCheckFunc {
+func checkSystemDiskEncrypted() builderT.TestCheckFunc {
 	return func(artifacts []packer.Artifact) error {
 		if len(artifacts) > 1 {
 			return fmt.Errorf("more than 1 artifact")
@@ -759,47 +767,39 @@ func checkCopyImageEncrypted() builderT.TestCheckFunc {
 
 		// describe the image, get block devices with a snapshot
 		client, _ := testAliyunClient()
+		imageId := artifact.AlicloudImages[defaultTestRegion]
 
-		for regionId, imageId := range artifact.AlicloudImages {
-			describeImagesRequest := ecs.CreateDescribeImagesRequest()
-			describeImagesRequest.RegionId = regionId
-			describeImagesRequest.ImageId = imageId
-			describeImagesRequest.Status = ImageStatusQueried
-			imagesResponse, err := client.DescribeImages(describeImagesRequest)
-			if err != nil {
-				return fmt.Errorf("describe images failed due to %s", err)
-			}
-
-			if len(imagesResponse.Images.Image) == 0 {
-				return fmt.Errorf("image %s generated can not be found", imageId)
-			}
-
-			image := imagesResponse.Images.Image[0]
-			if image.IsCopied {
-
-				var snapshotIds []string
-				for _, mapping := range image.DiskDeviceMappings.DiskDeviceMapping {
-					if mapping.Type == DiskTypeSystem {
-						snapshotIds = append(snapshotIds, mapping.SnapshotId)
-					}
-				}
-
-				data, _ := json.Marshal(snapshotIds)
-
-				describeSnapshotRequest := ecs.CreateDescribeSnapshotsRequest()
-				describeSnapshotRequest.RegionId = regionId
-				describeSnapshotRequest.SnapshotIds = string(data)
-				describeSnapshotsResponse, err := client.DescribeSnapshots(describeSnapshotRequest)
-				if err != nil {
-					return fmt.Errorf("describe data snapshots failed due to %s", err)
-				}
-				snapshots := describeSnapshotsResponse.Snapshots.Snapshot[0]
-
-				if snapshots.Encrypted == true {
-					break
-				}
-			}
+		describeImagesRequest := ecs.CreateDescribeImagesRequest()
+		describeImagesRequest.RegionId = defaultTestRegion
+		describeImagesRequest.ImageId = imageId
+		describeImagesRequest.Status = ImageStatusQueried
+		imagesResponse, err := client.DescribeImages(describeImagesRequest)
+		if err != nil {
+			return fmt.Errorf("describe images failed due to %s", err)
 		}
+
+		if len(imagesResponse.Images.Image) == 0 {
+			return fmt.Errorf("image %s generated can not be found", imageId)
+		}
+
+		image := imagesResponse.Images.Image[0]
+		if image.IsCopied == false {
+			return fmt.Errorf("image %s generated expexted to be copied but false", image.ImageId)
+		}
+
+		describeSnapshotRequest := ecs.CreateDescribeSnapshotsRequest()
+		describeSnapshotRequest.RegionId = defaultTestRegion
+		describeSnapshotRequest.SnapshotIds = fmt.Sprintf("[\"%s\"]", image.DiskDeviceMappings.DiskDeviceMapping[0].SnapshotId)
+		describeSnapshotsResponse, err := client.DescribeSnapshots(describeSnapshotRequest)
+		if err != nil {
+			return fmt.Errorf("describe system snapshots failed due to %s", err)
+		}
+		snapshots := describeSnapshotsResponse.Snapshots.Snapshot[0]
+
+		if snapshots.Encrypted != true {
+			return fmt.Errorf("system snapshot of image %s expected to be encrypted but got false", imageId)
+		}
+
 		return nil
 	}
 }

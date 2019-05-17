@@ -1,0 +1,20 @@
+env:
+  - USER=travis GO111MODULE=off
+
+sudo: false
+
+language: go
+
+go:
+  - 1.12.x
+
+script:
+  - df -h
+  - go get ./...
+  - go vet ./...
+  - go build ./...
+  - go test -run=nope ./...
+
+branches:
+  only:
+    - master

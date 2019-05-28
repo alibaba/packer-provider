@@ -3,7 +3,9 @@ package ecs
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/hashicorp/packer/helper/multistep"
 	"github.com/hashicorp/packer/packer"
@@ -11,6 +13,7 @@ import (
 
 type stepCheckAlicloudSourceImage struct {
 	SourceECSImageId string
+	ShowExpired      bool
 }
 
 func (s *stepCheckAlicloudSourceImage) Run(ctx context.Context, state multistep.StateBag) multistep.StepAction {
@@ -21,6 +24,7 @@ func (s *stepCheckAlicloudSourceImage) Run(ctx context.Context, state multistep.
 	describeImagesRequest := ecs.CreateDescribeImagesRequest()
 	describeImagesRequest.RegionId = config.AlicloudRegion
 	describeImagesRequest.ImageId = config.AlicloudSourceImage
+	describeImagesRequest.ShowExpired = requests.Boolean(strconv.FormatBool(s.ShowExpired))
 	imagesResponse, err := client.DescribeImages(describeImagesRequest)
 	if err != nil {
 		return halt(state, err, "Error querying alicloud image")

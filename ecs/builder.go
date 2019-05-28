@@ -95,6 +95,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		},
 		&stepCheckAlicloudSourceImage{
 			SourceECSImageId: b.config.AlicloudSourceImage,
+			ShowExpired:      b.config.ShowExpired,
 		},
 		&stepConfigAlicloudKeyPair{
 			Debug:        b.config.PackerDebug,

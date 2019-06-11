@@ -1,3 +1,22 @@
+## 1.4.1 (June 11, 2019)
+
+BUG FIXES:
+
+- fix describing snapshots issue when image_ignore_data_disks is provided ([#67](https://github.com/alibaba/packer-provider/pull/67))
+
+## 1.4.0 (April 25, 2019)
+
+IMPROVEMENTS:
+
+- update alicloud builder to use official SDK ([#62](https://github.com/alibaba/packer-provider/pull/62))
+- support encryption with default service key ([#65](https://github.com/alibaba/packer-provider/pull/65))
+
+## 1.3.2 (April 11, 2019)
+
+IMPROVEMENTS:
+
+- update aliyun sdk to support eu-west-1 region ([#60](https://github.com/alibaba/packer-provider/pull/60))
+
 ## 1.3.1 (December 14, 2018)
 
 IMPROVEMENTS:
